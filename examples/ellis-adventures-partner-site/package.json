@@ -1,0 +1,23 @@
+{
+  "name": "ellis-adventures-partner-site",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Concept prototype: partner site + portal for Kelsey & Zach (Ellis Adventures). Static front end, Netlify Functions, Supabase.",
+  "type": "module",
+  "scripts": {
+    "dev": "python3 -m http.server 8888",
+    "typecheck": "tsc --noEmit"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^1.6.0",
+    "@netlify/functions": "^6.1.0",
+    "@supabase/supabase-js": "^2.119.0"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.6",
+    "typescript": "^7.0.2"
+  }
+}

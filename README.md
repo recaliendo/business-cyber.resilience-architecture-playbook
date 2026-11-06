@@ -35,6 +35,7 @@ The goal here is to stop re-deriving the same decisions (and re-making the same 
 | Checking if you're ready to launch | [templates/production-readiness-checklist.md](templates/production-readiness-checklist.md) |
 | Doing a security pass | [templates/security-checklist.md](templates/security-checklist.md) + [docs/security.md](docs/security.md) |
 | Wondering "why did we pick X over Y" | [docs/architecture-decisions.md](docs/architecture-decisions.md) |
+| Looking for a worked example of the stack | [examples/ellis-adventures-partner-site/](examples/ellis-adventures-partner-site/README.md): creator partner site + portal prototype |
 
 ## Repository structure
 
@@ -71,7 +72,8 @@ business-architecture-playbook/
 │   ├── production-readiness-checklist.md
 │   └── config/                         — actual files to copy verbatim
 └── examples/
-    └── recommended-project-structure.md
+    ├── recommended-project-structure.md
+    └── ellis-adventures-partner-site/   — worked example: creator partner site, portal, functions, RLS schema
 ```
 
 ## Maturity stages this playbook covers
