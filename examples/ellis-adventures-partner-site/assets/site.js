@@ -452,7 +452,7 @@ window.EA = window.EA || {};
         booking = res.booking; inq.bookingId = booking.id; sent = sent.concat(res.sent);
       }
       EA.store.save();
-      sent = EA.notify.dispatch('inquiry.created', { ...inq, when: booking ? fmt.when(booking.start) : '', partnerEmail: data.email, partnerPhone: data.phone, partnerSms: data.smsOk && !!data.phone, silent: true }).concat(sent);
+      sent = EA.notify.dispatch('inquiry.created', { ...inq, when: booking ? fmt.when(booking.start) : '', partnerEmail: data.email, partnerPhone: null, partnerSms: false /* unverified number: email only, see notify.ts */, silent: true }).concat(sent);
       EA.store.emit('inquiry', inq);
       body.innerHTML = `<div class="wiz">
         <div class="success-mark">${icon('check')}</div>

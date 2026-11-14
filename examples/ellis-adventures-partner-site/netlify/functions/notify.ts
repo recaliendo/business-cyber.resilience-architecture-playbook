@@ -21,7 +21,11 @@ const T: Record<string, Tpl> = {
   'inquiry.created': {
     sms: (c) => `✨ New partner inquiry: ${c.company} (${c.category}) · ${c.budget}. ${c.when ? 'Discovery call ' + c.when + '.' : 'No call booked yet.'}`,
     email: (c) => ({ subject: `New partnership inquiry — ${c.company}`, body: `${c.contact_name} from ${c.company} wants to collaborate (${(c.formats || []).join(', ') || 'open to ideas'}).\nBudget: ${c.budget}\nTimeline: ${c.timeline}\n\n${c.goals}` }),
-    partner: (c) => ({ subject: 'We got your note — Kelsey & Zach', body: `Hi ${c.contact_name}! Thanks for reaching out about ${c.company}. We'll reply personally within 48 hours.${c.when ? ` See you on ${c.when}.` : ''}` }),
+    // Sent to an address typed into a public form, so it must not echo anything the submitter wrote
+    // (name, company, goals): otherwise the form becomes a way to send arbitrary text from our domain.
+    partner: (c) => ({ subject: 'We got your note — Kelsey & Zach', body: `Hi there! Thanks for reaching out about a partnership. We'll reply personally within 48 hours.${c.when ? ` Your discovery call is booked for ${c.when}.` : ''}
+
+If you didn't submit this, you can ignore this email.` }),
   },
   'booking.created': {
     sms: (c) => `📅 ${c.company} booked a ${c.typeLabel} with ${c.withLabel} — ${c.when}.`,
@@ -69,7 +73,10 @@ const asPartner = (p: Row | null) => (p ? { email: p.contact_email, phone: p.con
 /** Map a row change to an event name + template context. Returns null when nothing should fire. */
 async function toEvent({ type, table, record: r, old_record: old }: WebhookPayload): Promise<[string, Ctx] | null> {
   if (table === 'inquiries' && type === 'INSERT') {
-    return ['inquiry.created', { ...r, partner: { email: r.email, phone: r.phone, sms: !!r.sms_opt_in } }];
+    // Never text a number typed into the public form: it is unverified, and auto-texting it is how
+    // SMS-pumping fraud runs up Twilio bills. Prospects get the email confirmation only; texts start
+    // once they register as a partner (partners.sms_updates).
+    return ['inquiry.created', { ...r, partner: { email: r.email, phone: null, sms: false } }];
   }
   if (table === 'bookings' && type === 'INSERT') {
     const p = await partnerRow(r.partner_id);
