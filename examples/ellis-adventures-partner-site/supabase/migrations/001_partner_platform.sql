@@ -54,8 +54,18 @@ create policy "Partners update their own company" on public.partners for update 
 create policy "Creators read all profiles" on public.profiles for select using (public.is_creator());
 create policy "People read their own profile and teammates" on public.profiles for select
   using (id = auth.uid() or (partner_id is not null and partner_id = public.my_partner_id()));
+-- role and partner_id drive every tenant check in this schema (is_creator / my_partner_id), so clients
+-- must never be able to change them. Two layers:
+--   1. Column privileges: signed-in users may only edit display fields.
+--   2. WITH CHECK pins role AND partner_id to their current values, in case a later migration
+--      re-grants table-wide UPDATE. Without (2), a partner could set partner_id to another
+--      company's id and read and act as that company.
 create policy "People update their own profile" on public.profiles for update using (id = auth.uid())
-  with check (id = auth.uid() and role = (select role from public.profiles where id = auth.uid()));
+  with check (id = auth.uid()
+              and role = (select p.role from public.profiles p where p.id = auth.uid())
+              and partner_id is not distinct from (select p.partner_id from public.profiles p where p.id = auth.uid()));
+revoke update on public.profiles from anon, authenticated;
+grant update (full_name, title) on public.profiles to authenticated;
 
 -- =====================================================================
 -- New partnership inquiries (public form → netlify/functions/inquiry.ts)
@@ -75,8 +85,11 @@ create table public.inquiries (
   sms_opt_in boolean not null default false,
   status text not null default 'new' check (status in ('new', 'reviewing', 'converted', 'declined')),
   partner_id uuid references public.partners (id),
+  client_ip_hash text, -- HMAC of the submitter's IP (never the raw IP), used only for rate limiting
   created_at timestamptz not null default now()
 );
+create index inquiries_rate_limit_ip on public.inquiries (client_ip_hash, created_at);
+create index inquiries_created_at on public.inquiries (created_at);
 alter table public.inquiries enable row level security;
 create policy "Creators read inquiries" on public.inquiries for select using (public.is_creator());
 create policy "Creators update inquiries" on public.inquiries for update using (public.is_creator());

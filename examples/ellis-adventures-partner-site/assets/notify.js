@@ -18,7 +18,8 @@ window.EA = window.EA || {};
     'inquiry.created': {
       sms: (c) => `✨ New partner inquiry: ${c.company} (${c.category}) · ${c.budget}. ${c.when ? 'Discovery call ' + c.when + '.' : 'No call booked yet.'} Open HQ to reply.`,
       email: (c) => ({ subject: `New partnership inquiry — ${c.company}`, body: `${c.name} from ${c.company} wants to collaborate (${(c.formats || []).join(', ') || 'open to ideas'}). Budget: ${c.budget}. Timeline: ${c.timeline}. Goals: ${snip(c.goals, 200)}` }),
-      partner: (c) => ({ subject: 'We got your note — Kelsey & Zach', body: `Hi ${c.name}! Thanks for reaching out about ${c.company}. We were just notified and will reply personally within 48 hours.${c.when ? ' See you on ' + c.when + '.' : ''}` }),
+      // Mirrors netlify/functions/notify.ts: never echo submitter-written text back to a form-supplied address.
+      partner: (c) => ({ subject: 'We got your note — Kelsey & Zach', body: `Hi there! Thanks for reaching out about a partnership. We were just notified and will reply personally within 48 hours.${c.when ? ' Your discovery call is booked for ' + c.when + '.' : ''}` }),
     },
     'booking.created': {
       sms: (c) => `📅 ${c.company} booked a ${c.typeLabel} with ${c.withLabel} — ${c.when}.`,

@@ -44,7 +44,7 @@ Their Instagram profiles weren't readable without a login, so follower counts an
 | Proposal management | **Proposals**: send, request changes, revise and resubmit, accept/decline, version history; accepting creates a collaboration | `proposals`, `proposal_versions`, `decide_proposal()` RPC (recipient-only, state-checked) |
 | Innovation Center ("influence" campaigns, themes, mutual growth) | Idea board with votes, comments, niche filters, audience-fit score; **Pitch an idea** with a mutual-growth estimator; open trip windows with **Request a slot** | `ideas`, `idea_votes`, `idea_comments`, `collab_windows`; trending ideas notify HQ |
 | Brand tone, personal narrative, About Zach & Kelsey tab | Linktree palette and fonts; **About Zach & Kelsey** page: story chapters, who-does-what, beliefs, gear bag, places, signed note | Copy needs Kelsey & Zach's own words |
-| New partnership inquiry | 4-step wizard: brand → collaboration → **book a call** → review | `netlify/functions/inquiry.ts` (validation, honeypot, optional Turnstile, rate limit) |
+| New partnership inquiry | 4-step wizard: brand → collaboration → **book a call** → review | `netlify/functions/inquiry.ts` (validation, honeypot, required Turnstile, per-email / per-IP / global rate limits) |
 | Calendar booking for new **and** existing partners, same feature | One booking component (`assets/booking.js`): discovery call in the wizard; check-in / content review / strategy session in the portal. Pick Kelsey, Zach or both; travel days are blocked; `.ics` + Google Calendar | Cal.com collective event types (`availability.ts`, `book.ts`) synced to both Google Calendars |
 | Automated texts and/or emails to Zach & Kelsey | Every action fires the rules in HQ → **Automations**: per-event channels, recipients, quiet hours, test sends, phone preview, delivery log | Supabase Database Webhooks → `notify.ts` → Twilio (SMS) + Resend (email); `flush-queue.ts` sends texts held during quiet hours |
 | Live counter of partnerships, adventures, experiences | Home **The adventure so far** strip, derived from records; ticks when a project completes and from a live feed | `live_counters` view + `milestones` table (written by trigger, no partner data) on Supabase Realtime |
@@ -87,7 +87,7 @@ flowchart LR
 
 | Event | Default channels → who |
 |---|---|
-| New partnership inquiry | Text + email → Kelsey, Zach; email → shared inbox; confirmation → brand |
+| New partnership inquiry | Text + email → Kelsey, Zach; email → shared inbox; email confirmation → brand (never a text: the number is unverified) |
 | Call booked | Text + email → whoever was booked (Kelsey, Zach or both); confirmation → partner |
 | New direct message | Text + email → only the creator it was addressed to |
 | Proposal submitted / sent / decided | Text + email → K&Z; email (+ opt-in text) → partner |
