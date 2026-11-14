@@ -22,7 +22,7 @@
 |---|---|
 | Email alert transport | Not implemented; returns `not_implemented` |
 | GitHub ingestion | Shallow clone via `git`; needs network. Not covered by offline tests (URL validation is) |
-| AWS WAF regional matching | Emits a placeholder statement for regions; verify coverage manually |
+| AWS WAF regional matching | Emits the documented two-rule pattern (Count geo-match labeler, then label match). Region coverage per country depends on AWS's geolocation data |
 | Sanctions feeds | No automatic parsing of official program pages; a person maintains the normalized snapshot |
 | `bcr render` | Re-renders findings, roadmap, capacity and geo sections from JSON; the full narrative needs `bcr assess` |
 | Cloudflare Radar, CISA, Spamhaus, abuse.ch | Listed as sources and context only; there is no adapter turning them into signals (the tool will not invent country scores from them) |
@@ -35,12 +35,11 @@
 - An optional conversational layer.
 - Draft pull requests for sanctions proposals (proposals are printed and stored; opening a PR is left to the user).
 
-## Unverified knowledge
+## Knowledge verification
 
-Every legal, platform and vendor source is unverified (see [source-governance.md](source-governance.md)). Notable figures that need checking:
+All 46 sources were **machine-verified** on 2026-11-14: fetched, read, and checked claim by claim. That is not human or legal review. A handful of claims are still open because a page was script-rendered or did not cover the detail. See [source-governance.md](source-governance.md) for what changed as a result (the AI Act amendment, the CCPA threshold, the UK single sanctions list, AWS WAF regions) and for how a person signs off.
 
-- The CCPA CPI-adjusted revenue threshold, recorded as $26,625,000 and treated as uncertain between it and the $25,000,000 statutory base.
-- EU AI Act phase-in dates.
-- Apple's lists of required-reason APIs and SDKs.
-- Cloudflare and AWS plan-dependent geo features.
-- The illustrative SOC 2 Type I estimate (6 to 12 weeks, $10k to $25k).
+Still not verified against any source:
+
+- The illustrative SOC 2 Type I estimate (6 to 12 weeks, $10k to $25k). It is a planning heuristic, labelled as such in reports.
+- Vendor prices in the playbook docs (marked as dated illustrations).

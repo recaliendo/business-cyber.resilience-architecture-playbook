@@ -57,6 +57,7 @@ export function compile(policy: GeoPolicy, approval: ApprovalCheck, overrides: A
   if (synthetic.length && !opts.allowSynthetic) { res.refused = true; res.refusalReasons.push(`Policy contains synthetic example rules (${synthetic.map((r) => r.id).join(', ')}); pass --allow-synthetic for demos only.`); }
   if (res.refused) return res;
   if (caps.subdivision === 'plan_dependent' || caps.challenge === 'plan_dependent' || caps.log_only === 'plan_dependent') res.warnings.push(`Some ${provider} features depend on your plan. Verify before deploying (sources: ${caps.sourceIds.join(', ')}).`);
+  if (provider === 'aws-cloudfront') res.warnings.push('CloudFront serves content when it cannot determine a location (fails open), and requests it blocks never reach AWS WAF. Do not rely on it alone for sanctions; pair it with WAF rules and application checks.');
 
   // Precedence: a sanctions rule on a location suppresses threat rules for that same location.
   const sanctionKeys = new Set(policy.rules.filter((r) => r.track === 'sanctions').map((r) => selectorKey(r.selector)));
@@ -115,6 +116,7 @@ function compileRule(rule: GeoRule, provider: ProviderId, caps: ProviderCaps, re
         `The territory "${sel.legalDescription}" does not map exactly to codes${subdivisions.length ? '' : ' and no approximation is recorded'}.`,
         'Do NOT widen this rule to the whole country.',
         'Agree an approximation with counsel (record it in approximateSubdivisions with counselReviewed: true), then add signup and payment checks for the remaining precision gap.',
+        'For US programs, OFAC FAQ 1009 says US persons may reasonably rely on vetted third-party information such as postal codes and maps to decide whether a location is in a covered region: check billing and shipping postal codes at signup and payment.',
       ]);
     }
     if (!caps.subdivision) {
@@ -136,7 +138,16 @@ function compileRule(rule: GeoRule, provider: ProviderId, caps: ProviderCaps, re
     expression = `(${field} in {${locations.map((l) => `"${l}"`).join(' ')}})`;
     if (rule.action === 'CHALLENGE') expression += ` and not starts_with(http.request.uri.path, "${opts.apiPathPrefix ?? '/api/'}")`;
   } else if (provider === 'aws-waf') {
-    expression = JSON.stringify(sel.type === 'country' ? { GeoMatchStatement: { CountryCodes: locations } } : { RegionalGeoNote: 'Use the region-level geo match available for these locations', Locations: locations });
+    if (sel.type === 'country') {
+      expression = JSON.stringify({ GeoMatchStatement: { CountryCodes: locations } });
+      if (locations.includes('XX')) warnings.push('AWS WAF uses XX to label requests whose location is unknown; XX is not a usable country code here.');
+    } else {
+      // Region matching (verified, AWS WAF docs): a Count geo-match rule adds region labels, then a
+      // label-match rule acts on awswaf:clientip:geo:region:<CC>-<RR>. buildArtifact adds the labeler.
+      const labels = locations.map((l) => ({ LabelMatchStatement: { Scope: 'LABEL', Key: `awswaf:clientip:geo:region:${l}` } }));
+      expression = JSON.stringify(labels.length === 1 ? labels[0] : { OrStatement: { Statements: labels } });
+      warnings.push('Uses client-IP labels. If you enable forwarded-IP configuration, switch keys to awswaf:forwardedip:geo:region:<CC>-<RR>.');
+    }
   } else {
     target = locations.join(',');
   }
@@ -153,8 +164,15 @@ function buildArtifact(provider: ProviderId, rules: CompiledRule[]): unknown {
     case 'cloudflare-waf':
       return { kind: 'cloudflare-custom-rules', note: 'DRY RUN. Apply through your reviewed deployment pipeline; never edit live rules by hand.',
         rules: rules.map((r) => ({ description: r.description, expression: r.expression, action: r.action === 'BLOCK' ? 'block' : r.action === 'CHALLENGE' ? 'managed_challenge' : 'log', enabled: true })) };
-    case 'aws-waf':
-      return { kind: 'aws-waf-rules', note: 'DRY RUN.', rules: rules.map((r, i) => ({ Name: r.ruleId, Priority: i + 1, Statement: r.expression ? JSON.parse(r.expression) : null, Action: r.action === 'BLOCK' ? { Block: {} } : r.action === 'CHALLENGE' ? { Challenge: {} } : { Count: {} } })) };
+    case 'aws-waf': {
+      // Countries whose regions are matched need a preceding Count geo-match rule that adds labels;
+      // label matching must be in a later rule than the one that adds the labels.
+      const regionCountries = [...new Set(rules.flatMap((r) => [...(r.expression ?? '').matchAll(/geo:region:([A-Z]{2})-/g)].map((m) => m[1]!)))].sort();
+      const labeler = regionCountries.length
+        ? [{ Name: 'bcr-geo-region-labels', Priority: 0, Statement: { GeoMatchStatement: { CountryCodes: regionCountries } }, Action: { Count: {} }, VisibilityConfig: { SampledRequestsEnabled: true, CloudWatchMetricsEnabled: true, MetricName: 'bcrGeoRegionLabels' } }]
+        : [];
+      return { kind: 'aws-waf-rules', note: 'DRY RUN.', rules: [...labeler, ...rules.map((r, i) => ({ Name: r.ruleId, Priority: i + 1, Statement: r.expression ? JSON.parse(r.expression) : null, Action: r.action === 'BLOCK' ? { Block: {} } : r.action === 'CHALLENGE' ? { Challenge: {} } : { Count: {} }, VisibilityConfig: { SampledRequestsEnabled: true, CloudWatchMetricsEnabled: true, MetricName: r.ruleId.replace(/[^A-Za-z0-9]/g, '') } }))] };
+    }
     case 'aws-cloudfront':
       return { kind: 'cloudfront-geo-restriction', note: 'DRY RUN.', RestrictionType: rules.length ? 'blacklist' : 'none', Items: [...new Set(rules.flatMap((r) => (r.target ?? '').split(',').filter(Boolean)))].sort() };
     case 'app-store':

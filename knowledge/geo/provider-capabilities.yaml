@@ -1,16 +1,16 @@
-# What each enforcement layer can express. Based on vendor documentation recorded from prior
-# knowledge. UNVERIFIED: confirm against the cited sources and your plan before relying on it.
-# Plan-dependent features are marked; the compiler reports them as "verify for your plan".
-version: "1.0.0"
+# What each enforcement layer can express. Machine-verified on 2026-11-14 against the cited vendor
+# documentation (see knowledge/sources/registry.yaml claims). Plan-dependent features are marked;
+# the compiler reports them as "verify for your plan".
+version: "2.0.0"
 providers:
   cloudflare-waf:
-    sourceIds: [SRC-CLOUDFLARE-WAF]
-    country: true
-    subdivision: plan_dependent      # ip.src.subdivision_1_iso_code: availability depends on plan
+    sourceIds: [SRC-CLOUDFLARE-WAF, SRC-CLOUDFLARE-FIELDS]
+    country: true                    # ip.src.country (ISO 3166-1 alpha-2)
+    subdivision: plan_dependent      # ip.src.subdivision_1_iso_code needs a Business or Enterprise plan
     challenge: true                  # managed_challenge, web browsers only
-    log_only: plan_dependent         # the "log" action is not available on every plan
+    log_only: plan_dependent         # the Log action is Enterprise-only
     nativeClientChallenge: false
-    notes: Challenges need a browser; native iOS and API clients cannot solve them.
+    notes: Challenges need a browser; native iOS and API clients cannot solve them. The subdivision field is empty when the region is unknown.
   aws-cloudfront:
     sourceIds: [SRC-AWS-CLOUDFRONT-GEO]
     country: true
@@ -18,15 +18,15 @@ providers:
     challenge: false
     log_only: false
     nativeClientChallenge: false
-    notes: Distribution-level allow list or deny list by country only.
+    notes: Whole-distribution country allow list or block list only. If CloudFront cannot determine a user's location it SERVES the content (fails open), and blocked requests never reach AWS WAF.
   aws-waf:
     sourceIds: [SRC-AWS-WAF-GEO]
-    country: true
-    subdivision: plan_dependent      # region-level geo match exists for some regions; check coverage
+    country: true                    # GeoMatchStatement on ISO 3166-1 alpha-2 codes
+    subdivision: true                # via a Count geo-match rule followed by label match on awswaf:clientip:geo:region:<CC>-<RR>
     challenge: true
-    log_only: true                   # count action
+    log_only: true                   # Count action
     nativeClientChallenge: false
-    notes: Check which regions support region-level matching.
+    notes: Region matching needs two rules (geo match with Count to add labels, then a label match). Unknown country or region codes are labelled XX.
   app-store:
     sourceIds: [SRC-APPLE-REVIEW]
     country: true                    # territory availability in App Store Connect (coarse distribution control)

@@ -1,58 +1,755 @@
 # Source registry. Every rule in knowledge/ cites sources from here.
 #
-# IMPORTANT: verifiedAt is null for every entry. These URLs were recorded from prior knowledge and
-# have NOT been fetched or checked by a person. Until someone verifies a source and fills in
-# verifiedAt, verifiedBy, retrievedAt and contentHash, every rule depending on it is reported as
-# "unverified". Run `bcr sources status` for the backlog and docs/consultant/source-governance.md
-# for the procedure. Never fill in a verification date you did not perform.
-version: "1.0.0"
+# VERIFICATION STATUS (2026-11-14): every source below was fetched and read by Claude Code at
+# 2026-11-14T22:55:59Z, and the specific claims our rules depend on were checked one by one
+# (see `claims`). This is AUTOMATED verification (verificationMethod: automated). Reports show it as
+# "machine-verified, awaiting human sign-off". It is not human or legal review.
+#
+# To sign off as a person: read the source, check each claim, then set verificationMethod: human,
+# verifiedBy: <your name>, verifiedAt: <when you checked>. See docs/consultant/source-governance.md.
+#
+# EU legal acts were checked against the official Publications Office (Cellar) XHTML text; their
+# contentHash is the sha256 of that download. Other sources were read through web fetches; contentHash
+# is null because the fetched page renderings are not stable byte-for-byte.
+#
+# Claim status: confirmed | partial (source exists, this detail not visible to the fetch) |
+# not_confirmed | contradicted (our rule said otherwise and was corrected in the same change).
+version: "2.0.0"
 sources:
-  # ---- privacy ----
-  - { id: SRC-GDPR, publisher: European Union, title: "Regulation (EU) 2016/679 (GDPR)", url: "https://eur-lex.europa.eu/eli/reg/2016/679/oj", topic: privacy, jurisdiction: EU, official: true, effectiveDate: "2018-05-25", reviewCadenceDays: 365 }
-  - { id: SRC-EDPB-TERRITORIAL, publisher: European Data Protection Board, title: "Guidelines 3/2018 on the territorial scope of the GDPR (Article 3)", url: "https://www.edpb.europa.eu/our-work-tools/our-documents/guidelines/guidelines-32018-territorial-scope-gdpr-article-3-version_en", topic: privacy, jurisdiction: EU, official: true, reviewCadenceDays: 365 }
-  - { id: SRC-ICO-UKGDPR, publisher: UK Information Commissioner's Office, title: "UK GDPR guidance and resources", url: "https://ico.org.uk/for-organisations/uk-gdpr-guidance-and-resources/", topic: privacy, jurisdiction: UK, official: true, reviewCadenceDays: 180 }
-  - { id: SRC-CA-CCPA, publisher: California Attorney General, title: "California Consumer Privacy Act (CCPA)", url: "https://oag.ca.gov/privacy/ccpa", topic: privacy, jurisdiction: US-CA, official: true, reviewCadenceDays: 180, notes: "Monetary thresholds are CPI-adjusted; confirm the current figure." }
-  - { id: SRC-CPPA-REGS, publisher: California Privacy Protection Agency, title: "CCPA regulations", url: "https://cppa.ca.gov/regulations/", topic: privacy, jurisdiction: US-CA, official: true, reviewCadenceDays: 180 }
-  - { id: SRC-US-STATE-TRACKER, publisher: IAPP, title: "US State Privacy Legislation Tracker", url: "https://iapp.org/resources/article/us-state-privacy-legislation-tracker/", topic: privacy, jurisdiction: US, official: false, reviewCadenceDays: 90, notes: "Secondary source used for orientation only; confirm against each state's statute." }
-  - { id: SRC-LGPD, publisher: "Autoridade Nacional de Proteção de Dados (Brazil)", title: "ANPD: LGPD resources", url: "https://www.gov.br/anpd/pt-br", topic: privacy, jurisdiction: BR, official: true, reviewCadenceDays: 365 }
-  # ---- Apple ----
-  - { id: SRC-APPLE-REVIEW, publisher: Apple, title: "App Review Guidelines", url: "https://developer.apple.com/app-store/review/guidelines/", topic: platform, jurisdiction: global, official: true, reviewCadenceDays: 90 }
-  - { id: SRC-APPLE-PRIVACY-DETAILS, publisher: Apple, title: "App privacy details on the App Store", url: "https://developer.apple.com/app-store/app-privacy-details/", topic: platform, jurisdiction: global, official: true, reviewCadenceDays: 90 }
-  - { id: SRC-APPLE-PRIVACY-MANIFEST, publisher: Apple, title: "Privacy manifest files", url: "https://developer.apple.com/documentation/bundleresources/privacy-manifest-files", topic: platform, jurisdiction: global, official: true, reviewCadenceDays: 90 }
-  - { id: SRC-APPLE-ACCOUNT-DELETION, publisher: Apple, title: "Offering account deletion in your app", url: "https://developer.apple.com/support/offering-account-deletion-in-your-app/", topic: platform, jurisdiction: global, official: true, reviewCadenceDays: 90 }
-  - { id: SRC-APPLE-ATT, publisher: Apple, title: "User privacy and data use (App Tracking Transparency)", url: "https://developer.apple.com/app-store/user-privacy-and-data-use/", topic: platform, jurisdiction: global, official: true, reviewCadenceDays: 90 }
-  # ---- payments ----
-  - { id: SRC-PCI-SSC, publisher: PCI Security Standards Council, title: "PCI DSS document library (standard and SAQs)", url: "https://www.pcisecuritystandards.org/document_library/", topic: payments, jurisdiction: global, official: true, reviewCadenceDays: 180 }
-  - { id: SRC-STRIPE-SECURITY, publisher: Stripe, title: "Integration security guide", url: "https://docs.stripe.com/security/guide", topic: payments, jurisdiction: global, official: true, reviewCadenceDays: 180 }
-  # ---- children ----
-  - { id: SRC-FTC-COPPA, publisher: US Federal Trade Commission, title: "Children's Online Privacy Protection Rule (COPPA)", url: "https://www.ftc.gov/legal-library/browse/rules/childrens-online-privacy-protection-rule-coppa", topic: children, jurisdiction: US, official: true, reviewCadenceDays: 180 }
-  - { id: SRC-ICO-AADC, publisher: UK Information Commissioner's Office, title: "Age appropriate design code (Children's code)", url: "https://ico.org.uk/for-organisations/uk-gdpr-guidance-and-resources/childrens-information/childrens-code-guidance-and-resources/", topic: children, jurisdiction: UK, official: true, reviewCadenceDays: 365 }
-  # ---- accessibility ----
-  - { id: SRC-EAA, publisher: European Union, title: "Directive (EU) 2019/882 (European Accessibility Act)", url: "https://eur-lex.europa.eu/eli/dir/2019/882/oj", topic: accessibility, jurisdiction: EU, official: true, effectiveDate: "2025-06-28", reviewCadenceDays: 365, notes: "Applied through national laws; check the member states you serve." }
-  - { id: SRC-ADA-WEB, publisher: US Department of Justice, title: "Guidance on web accessibility and the ADA", url: "https://www.ada.gov/resources/web-guidance/", topic: accessibility, jurisdiction: US, official: true, reviewCadenceDays: 365 }
-  - { id: SRC-WCAG22, publisher: W3C, title: "Web Content Accessibility Guidelines (WCAG) 2.2", url: "https://www.w3.org/TR/WCAG22/", topic: accessibility, jurisdiction: global, official: true, reviewCadenceDays: 365 }
-  # ---- AI ----
-  - { id: SRC-EU-AI-ACT, publisher: European Union, title: "Regulation (EU) 2024/1689 (AI Act)", url: "https://eur-lex.europa.eu/eli/reg/2024/1689/oj", topic: ai, jurisdiction: EU, official: true, reviewCadenceDays: 90, notes: "Obligations phase in over several years; confirm which dates apply to your role." }
-  # ---- sector ----
-  - { id: SRC-HHS-HIPAA, publisher: US Department of Health and Human Services, title: "HIPAA: covered entities and business associates", url: "https://www.hhs.gov/hipaa/for-professionals/covered-entities/index.html", topic: sector, jurisdiction: US, official: true, reviewCadenceDays: 365 }
-  - { id: SRC-ED-FERPA, publisher: US Department of Education, title: "Student Privacy Policy Office (FERPA)", url: "https://studentprivacy.ed.gov/", topic: sector, jurisdiction: US, official: true, reviewCadenceDays: 365 }
-  - { id: SRC-FTC-GLBA, publisher: US Federal Trade Commission, title: "Gramm-Leach-Bliley Act guidance", url: "https://www.ftc.gov/business-guidance/privacy-security/gramm-leach-bliley-act", topic: sector, jurisdiction: US, official: true, reviewCadenceDays: 365 }
-  # ---- attestations ----
-  - { id: SRC-AICPA-SOC2, publisher: AICPA & CIMA, title: "SOC 2: SOC for Service Organizations", url: "https://www.aicpa-cima.com/topic/audit-assurance/audit-and-assurance-greater-than-soc-2", topic: attestation, jurisdiction: global, official: true, reviewCadenceDays: 365 }
-  - { id: SRC-ISO-27001, publisher: ISO, title: "ISO/IEC 27001 Information security management systems", url: "https://www.iso.org/standard/27001", topic: attestation, jurisdiction: global, official: true, reviewCadenceDays: 365 }
-  # ---- sanctions ----
-  - { id: SRC-OFAC-PROGRAMS, publisher: US Treasury OFAC, title: "Sanctions programs and country information", url: "https://ofac.treasury.gov/sanctions-programs-and-country-information", topic: sanctions, jurisdiction: US, official: true, reviewCadenceDays: 1 }
-  - { id: SRC-OFAC-SLS, publisher: US Treasury OFAC, title: "Sanctions List Service", url: "https://sanctionslist.ofac.treas.gov/", topic: sanctions, jurisdiction: US, official: true, reviewCadenceDays: 1, notes: "Name lists. A list entry is not a geographic service restriction." }
-  - { id: SRC-EU-SANCTIONS-MAP, publisher: European Union, title: "EU Sanctions Map", url: "https://www.sanctionsmap.eu/", topic: sanctions, jurisdiction: EU, official: true, reviewCadenceDays: 1, notes: "Orientation tool; the legal acts on EUR-Lex are authoritative." }
-  - { id: SRC-UK-SANCTIONS, publisher: UK Government, title: "UK sanctions regimes", url: "https://www.gov.uk/government/collections/uk-sanctions-regimes", topic: sanctions, jurisdiction: UK, official: true, reviewCadenceDays: 1 }
-  - { id: SRC-UK-OFSI, publisher: UK Office of Financial Sanctions Implementation, title: "OFSI guidance", url: "https://www.gov.uk/government/organisations/office-of-financial-sanctions-implementation", topic: sanctions, jurisdiction: UK, official: true, reviewCadenceDays: 30 }
-  - { id: SRC-OPENSANCTIONS, publisher: OpenSanctions, title: "OpenSanctions datasets", url: "https://www.opensanctions.org/", topic: sanctions, jurisdiction: global, official: false, reviewCadenceDays: 30, license: "Check licence terms; commercial use may need a licence.", notes: "Supplementary normalisation only; verify against official sources." }
-  # ---- geo / threat ----
-  - { id: SRC-EU-GEOBLOCKING, publisher: European Union, title: "Regulation (EU) 2018/302 on unjustified geo-blocking", url: "https://eur-lex.europa.eu/eli/reg/2018/302/oj", topic: geo, jurisdiction: EU, official: true, reviewCadenceDays: 365, notes: "Has a defined scope, exclusions and justified exceptions." }
-  - { id: SRC-CLOUDFLARE-WAF, publisher: Cloudflare, title: "WAF custom rules", url: "https://developers.cloudflare.com/waf/custom-rules/", topic: geo, jurisdiction: global, official: true, reviewCadenceDays: 90 }
-  - { id: SRC-AWS-WAF-GEO, publisher: Amazon Web Services, title: "AWS WAF geographic match rule statement", url: "https://docs.aws.amazon.com/waf/latest/developerguide/waf-rule-statement-type-geo-match.html", topic: geo, jurisdiction: global, official: true, reviewCadenceDays: 90 }
-  - { id: SRC-AWS-CLOUDFRONT-GEO, publisher: Amazon Web Services, title: "CloudFront geographic restrictions", url: "https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/georestrictions.html", topic: geo, jurisdiction: global, official: true, reviewCadenceDays: 90 }
-  - { id: SRC-CLOUDFLARE-RADAR, publisher: Cloudflare, title: "Cloudflare Radar", url: "https://radar.cloudflare.com/", topic: threat, jurisdiction: global, official: false, reviewCadenceDays: 30, notes: "Aggregate context only; not a per-country risk score for your service." }
-  - { id: SRC-CISA-ADVISORIES, publisher: US CISA, title: "Cybersecurity advisories", url: "https://www.cisa.gov/news-events/cybersecurity-advisories", topic: threat, jurisdiction: US, official: true, reviewCadenceDays: 7, notes: "Advisories describe threats and vulnerabilities, not country risk scores." }
-  - { id: SRC-SPAMHAUS-DROP, publisher: Spamhaus, title: "Don't Route Or Peer (DROP) lists", url: "https://www.spamhaus.org/blocklists/do-not-route-or-peer/", topic: threat, jurisdiction: global, official: false, reviewCadenceDays: 1, license: "Check usage terms.", notes: "Network ranges, not countries." }
-  - { id: SRC-ABUSE-CH, publisher: abuse.ch, title: "abuse.ch threat intelligence", url: "https://abuse.ch/", topic: threat, jurisdiction: global, official: false, reviewCadenceDays: 1, license: "Check usage terms.", notes: "Indicators, not countries." }
+  # ============================ privacy ============================
+  - id: SRC-GDPR
+    publisher: European Union
+    title: "Regulation (EU) 2016/679 (GDPR)"
+    url: "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32016R0679"
+    topic: privacy
+    jurisdiction: EU
+    official: true
+    effectiveDate: "2018-05-25"
+    retrievedAt: "2026-11-14T22:55:59Z"
+    verifiedAt: "2026-11-14T22:55:59Z"
+    verifiedBy: "Claude Code (automated read; not human sign-off)"
+    verificationMethod: automated
+    reviewCadenceDays: 365
+    contentHash: "962539af03738bf552319ff4ce42d69e5f95a576307c4dfed7bf87e81b646b9d"
+    notes: "Read from the official Cellar XHTML (CELEX 32016R0679). EUR-Lex metadata shows the act in force with no amending acts as of 2026-11-14. The ELI page renders only navigation to automated clients."
+    claims:
+      - { id: art3-2-targeting, claim: "Art. 3(2) applies to non-EU controllers/processors when processing relates to offering goods or services to, or monitoring the behaviour of, data subjects in the Union", status: confirmed }
+      - { id: art8-1-child-age, claim: "Art. 8(1): parental authorisation below 16 for information society services offered directly to a child; member states may lower the age to no less than 13", status: confirmed }
+      - { id: art27-2-exception, claim: "Art. 27(2): no representative needed for occasional processing without large-scale special-category or criminal data that is unlikely to result in a risk, or for public authorities", status: confirmed }
+      - { id: art33-1-72h, claim: "Art. 33(1): notify the supervisory authority without undue delay and, where feasible, within 72 hours, unless the breach is unlikely to result in a risk", status: confirmed }
+  - id: SRC-EDPB-TERRITORIAL
+    publisher: European Data Protection Board
+    title: "Guidelines 3/2018 on the territorial scope of the GDPR (Article 3)"
+    url: "https://www.edpb.europa.eu/our-work-tools/our-documents/guidelines/guidelines-32018-territorial-scope-gdpr-article-3-version_en"
+    topic: privacy
+    jurisdiction: EU
+    official: true
+    effectiveDate: "2019-11-12"
+    retrievedAt: "2026-11-14T22:55:59Z"
+    verifiedAt: "2026-11-14T22:55:59Z"
+    verifiedBy: "Claude Code (automated read; not human sign-off)"
+    verificationMethod: automated
+    reviewCadenceDays: 365
+    claims:
+      - { id: final-version, claim: "Final version of Guidelines 3/2018, adopted after public consultation on 12 November 2019", status: confirmed }
+      - { id: accessibility-not-targeting, claim: "Mere accessibility of a website in the EU is not by itself targeting", status: partial, note: "The landing page links the PDF but the body text was not read." }
+  - id: SRC-ICO-UKGDPR
+    publisher: UK Information Commissioner's Office
+    title: "ICO: receiving personal information from the EEA (UK representatives)"
+    url: "https://ico.org.uk/for-organisations/uk-gdpr-guidance-and-resources/international-transfers/receiving-personal-information-from-the-eea/"
+    topic: privacy
+    jurisdiction: UK
+    official: true
+    retrievedAt: "2026-11-14T22:55:59Z"
+    verifiedAt: "2026-11-14T22:55:59Z"
+    verifiedBy: "Claude Code (automated read; not human sign-off)"
+    verificationMethod: automated
+    reviewCadenceDays: 180
+    notes: "Replaces the UK GDPR guidance hub URL, which rendered only navigation. UK data protection law is being amended by the Data (Use and Access) Act 2025 in phases; re-check representative and DPIA guidance when commencement orders land."
+    claims:
+      - { id: uk-representative, claim: "Organisations outside the UK without a UK branch or office that are subject to UK GDPR must appoint a UK representative", status: confirmed }
+      - { id: duaa-2025-changes, claim: "Effect of the Data (Use and Access) Act 2025 on representatives and DPIAs", status: not_confirmed, note: "Not covered by the pages read." }
+  - id: SRC-CA-CCPA
+    publisher: California Attorney General
+    title: "California Consumer Privacy Act (CCPA)"
+    url: "https://oag.ca.gov/privacy/ccpa"
+    topic: privacy
+    jurisdiction: US-CA
+    official: true
+    retrievedAt: "2026-11-14T22:55:59Z"
+    verifiedAt: "2026-11-14T22:55:59Z"
+    verifiedBy: "Claude Code (automated read; not human sign-off)"
+    verificationMethod: automated
+    reviewCadenceDays: 180
+    claims:
+      - { id: thresholds, claim: "For-profit businesses doing business in California are covered if they meet at least one of: revenue threshold, 100,000+ consumers or households, or 50%+ of revenue from selling personal information", status: confirmed, note: "The AG FAQ states the revenue base as 'over $25 million' and mentions 'selling' only; the CPI-adjusted figure is in SRC-CPPA-CPI." }
+  - id: SRC-CPPA-CPI
+    publisher: California Privacy Protection Agency
+    title: "CCPA monetary thresholds (CPI adjustment)"
+    url: "https://cppa.ca.gov/regulations/cpi_adjustment.html"
+    topic: privacy
+    jurisdiction: US-CA
+    official: true
+    effectiveDate: "2025-01-01"
+    retrievedAt: "2026-11-14T22:55:59Z"
+    verifiedAt: "2026-11-14T22:55:59Z"
+    verifiedBy: "Claude Code (automated read; not human sign-off)"
+    verificationMethod: automated
+    reviewCadenceDays: 90
+    notes: "Thresholds are CPI-adjusted periodically. Re-check every January."
+    claims:
+      - { id: revenue-26625000, claim: "Civil Code 1798.140(d)(1)(A) revenue threshold is $26,625,000 (up from $25,000,000), applying from 1 January 2025", status: confirmed }
+  - id: SRC-CPPA-REGS
+    publisher: California Privacy Protection Agency
+    title: "CCPA laws and regulations"
+    url: "https://cppa.ca.gov/regulations/"
+    topic: privacy
+    jurisdiction: US-CA
+    official: true
+    retrievedAt: "2026-11-14T22:55:59Z"
+    verifiedAt: "2026-11-14T22:55:59Z"
+    verifiedBy: "Claude Code (automated read; not human sign-off)"
+    verificationMethod: automated
+    reviewCadenceDays: 180
+    claims:
+      - { id: regs-index, claim: "Official index of CCPA regulations, including the September 2025 package on cybersecurity audits, risk assessments and automated decisionmaking technology", status: confirmed, note: "Specific effective dates for the 2025 package were not shown on the index." }
+  - id: SRC-US-STATE-TRACKER
+    publisher: IAPP
+    title: "US State Privacy Legislation Tracker"
+    url: "https://iapp.org/resources/article/us-state-privacy-legislation-tracker/"
+    topic: privacy
+    jurisdiction: US
+    official: false
+    retrievedAt: "2026-11-14T22:55:59Z"
+    verifiedAt: "2026-11-14T22:55:59Z"
+    verifiedBy: "Claude Code (automated read; not human sign-off)"
+    verificationMethod: automated
+    reviewCadenceDays: 90
+    notes: "Secondary source for orientation only; confirm each state's statute."
+    claims:
+      - { id: tracker-current, claim: "Tracker of comprehensive US state privacy laws, last updated 8 September 2026", status: confirmed }
+      - { id: state-count, claim: "Number of states with comprehensive privacy laws", status: partial, note: "The count is in a chart the fetch could not read." }
+  - id: SRC-LGPD
+    publisher: "Agência Nacional de Proteção de Dados (Brazil)"
+    title: "ANPD: LGPD authority"
+    url: "https://www.gov.br/anpd/pt-br"
+    topic: privacy
+    jurisdiction: BR
+    official: true
+    retrievedAt: "2026-11-14T22:55:59Z"
+    verifiedAt: "2026-11-14T22:55:59Z"
+    verifiedBy: "Claude Code (automated read; not human sign-off)"
+    verificationMethod: automated
+    reviewCadenceDays: 365
+    notes: "Now an agency (Agência), previously Autoridade."
+    claims:
+      - { id: lgpd-authority, claim: "ANPD handles LGPD non-compliance complaints and security-incident notifications", status: confirmed }
+
+  # ============================ Apple ============================
+  - id: SRC-APPLE-REVIEW
+    publisher: Apple
+    title: "App Review Guidelines"
+    url: "https://developer.apple.com/app-store/review/guidelines/"
+    topic: platform
+    jurisdiction: global
+    official: true
+    retrievedAt: "2026-11-14T22:55:59Z"
+    verifiedAt: "2026-11-14T22:55:59Z"
+    verifiedBy: "Claude Code (automated read; not human sign-off)"
+    verificationMethod: automated
+    reviewCadenceDays: 90
+    claims:
+      - { id: g-5-1-1-v-deletion, claim: "Guideline 5.1.1(v): apps that support account creation must offer account deletion within the app", status: confirmed }
+      - { id: g-5-1-2-i-att, claim: "Guideline 5.1.2(i): explicit permission through App Tracking Transparency is required to track", status: confirmed }
+      - { id: g-3-1-1-iap, claim: "Guideline 3.1.1: content or features unlocked in the app must use in-app purchase, with storefront-specific exceptions", status: confirmed, note: "US storefront apps may include buttons, external links and calls to action without an entitlement; other storefronts use StoreKit External Purchase Link entitlements where permitted." }
+      - { id: eu-alt-payments, claim: "EU alternative payment and distribution terms", status: partial, note: "Only links to EU-specific pages; terms not read." }
+  - id: SRC-APPLE-PRIVACY-DETAILS
+    publisher: Apple
+    title: "App privacy details on the App Store"
+    url: "https://developer.apple.com/app-store/app-privacy-details/"
+    topic: platform
+    jurisdiction: global
+    official: true
+    retrievedAt: "2026-11-14T22:55:59Z"
+    verifiedAt: "2026-11-14T22:55:59Z"
+    verifiedBy: "Claude Code (automated read; not human sign-off)"
+    verificationMethod: automated
+    reviewCadenceDays: 90
+    claims:
+      - { id: labels-incl-sdks, claim: "Privacy details are required for new apps and updates and must cover data collected by integrated third-party partners and SDKs", status: confirmed }
+  - id: SRC-APPLE-PRIVACY-MANIFEST
+    publisher: Apple
+    title: "Privacy manifest files"
+    url: "https://developer.apple.com/documentation/bundleresources/privacy-manifest-files"
+    topic: platform
+    jurisdiction: global
+    official: true
+    retrievedAt: "2026-11-14T22:55:59Z"
+    verifiedAt: "2026-11-14T22:55:59Z"
+    verifiedBy: "Claude Code (automated read; not human sign-off)"
+    verificationMethod: automated
+    reviewCadenceDays: 90
+    notes: "Documentation is rendered by JavaScript; only the title was visible to the fetch."
+    claims:
+      - { id: manifest-and-required-reasons, claim: "Privacy manifests (PrivacyInfo.xcprivacy) declare collected data and approved reasons for required-reason APIs", status: partial, note: "Page title confirmed; body not rendered. Required-reason API detail still needs a human read." }
+  - id: SRC-APPLE-SDK-REQUIREMENTS
+    publisher: Apple
+    title: "Third-party SDK requirements"
+    url: "https://developer.apple.com/support/third-party-SDK-requirements/"
+    topic: platform
+    jurisdiction: global
+    official: true
+    retrievedAt: "2026-11-14T22:55:59Z"
+    verifiedAt: "2026-11-14T22:55:59Z"
+    verifiedBy: "Claude Code (automated read; not human sign-off)"
+    verificationMethod: automated
+    reviewCadenceDays: 90
+    claims:
+      - { id: listed-sdk-manifest-signature, claim: "New apps or updates that add an SDK on Apple's list must include that SDK's privacy manifest, and a signature when used as a binary dependency (any version, including repackaged SDKs)", status: confirmed }
+  - id: SRC-APPLE-ACCOUNT-DELETION
+    publisher: Apple
+    title: "Offering account deletion in your app"
+    url: "https://developer.apple.com/support/offering-account-deletion-in-your-app/"
+    topic: platform
+    jurisdiction: global
+    official: true
+    retrievedAt: "2026-11-14T22:55:59Z"
+    verifiedAt: "2026-11-14T22:55:59Z"
+    verifiedBy: "Claude Code (automated read; not human sign-off)"
+    verificationMethod: automated
+    reviewCadenceDays: 90
+    claims:
+      - { id: in-app-deletion, claim: "Apps that support account creation must let people start account deletion within the app; temporary deactivation alone is insufficient", status: confirmed }
+  - id: SRC-APPLE-ATT
+    publisher: Apple
+    title: "User privacy and data use (App Tracking Transparency)"
+    url: "https://developer.apple.com/app-store/user-privacy-and-data-use/"
+    topic: platform
+    jurisdiction: global
+    official: true
+    retrievedAt: "2026-11-14T22:55:59Z"
+    verifiedAt: "2026-11-14T22:55:59Z"
+    verifiedBy: "Claude Code (automated read; not human sign-off)"
+    verificationMethod: automated
+    reviewCadenceDays: 90
+    claims:
+      - { id: tracking-definition, claim: "Tracking means linking app data with other companies' data for targeted advertising or measurement, or sharing it with data brokers", status: confirmed }
+      - { id: att-exceptions, claim: "No ATT permission needed for on-device-only linking, fraud detection/prevention or security by a data broker, or consumer reporting for credit", status: confirmed }
+
+  # ============================ payments ============================
+  - id: SRC-PCI-SSC
+    publisher: PCI Security Standards Council
+    title: "PCI DSS document library (standard and SAQs)"
+    url: "https://www.pcisecuritystandards.org/document_library/"
+    topic: payments
+    jurisdiction: global
+    official: true
+    retrievedAt: "2026-11-14T22:55:59Z"
+    verifiedAt: "2026-11-14T22:55:59Z"
+    verifiedBy: "Claude Code (automated read; not human sign-off)"
+    verificationMethod: automated
+    reviewCadenceDays: 180
+    claims:
+      - { id: dss-version, claim: "Current PCI DSS version is v4.0.1", status: confirmed }
+      - { id: saq-list, claim: "Self-assessment questionnaires (for example SAQ A) are published in the library", status: partial, note: "The document list loads dynamically and was not visible." }
+  - id: SRC-STRIPE-SECURITY
+    publisher: Stripe
+    title: "Integration security guide"
+    url: "https://docs.stripe.com/security/guide"
+    topic: payments
+    jurisdiction: global
+    official: true
+    retrievedAt: "2026-11-14T22:55:59Z"
+    verifiedAt: "2026-11-14T22:55:59Z"
+    verifiedBy: "Claude Code (automated read; not human sign-off)"
+    verificationMethod: automated
+    reviewCadenceDays: 180
+    claims:
+      - { id: shared-responsibility, claim: "PCI compliance is shared: the business must accept payments in a PCI-compliant manner and attest annually", status: confirmed }
+      - { id: low-risk-integrations, claim: "Low-risk integrations that send card data directly to Stripe reduce, but do not remove, PCI obligations", status: confirmed }
+      - { id: webhook-verification, claim: "Webhook signatures must be verified", status: confirmed }
+
+  # ============================ children ============================
+  - id: SRC-FTC-COPPA
+    publisher: US Federal Trade Commission
+    title: "Children's Online Privacy Protection Rule (COPPA)"
+    url: "https://www.ftc.gov/legal-library/browse/rules/childrens-online-privacy-protection-rule-coppa"
+    topic: children
+    jurisdiction: US
+    official: true
+    retrievedAt: "2026-11-14T22:55:59Z"
+    verifiedAt: "2026-11-14T22:55:59Z"
+    verifiedBy: "Claude Code (automated read; not human sign-off)"
+    verificationMethod: automated
+    reviewCadenceDays: 180
+    claims:
+      - { id: scope-under-13, claim: "Applies to operators of services directed to children under 13 and to operators with actual knowledge they collect personal information from children under 13", status: confirmed }
+      - { id: amended-rule-2025, claim: "An amended rule was published in the Federal Register on 22 April 2025", status: confirmed, note: "Its compliance date was not shown on the page." }
+  - id: SRC-ICO-AADC
+    publisher: UK Information Commissioner's Office
+    title: "Age appropriate design code (Children's code)"
+    url: "https://ico.org.uk/for-organisations/uk-gdpr-guidance-and-resources/childrens-information/childrens-code-guidance-and-resources/"
+    topic: children
+    jurisdiction: UK
+    official: true
+    retrievedAt: "2026-11-14T22:55:59Z"
+    verifiedAt: "2026-11-14T22:55:59Z"
+    verifiedBy: "Claude Code (automated read; not human sign-off)"
+    verificationMethod: automated
+    reviewCadenceDays: 365
+    claims:
+      - { id: likely-accessed, claim: "Applies to online services likely to be accessed by children, not only services aimed at them", status: confirmed }
+      - { id: under-18, claim: "Children means under-18s", status: partial, note: "Not stated on the hub page read." }
+
+  # ============================ accessibility ============================
+  - id: SRC-EAA
+    publisher: European Union
+    title: "Directive (EU) 2019/882 (European Accessibility Act)"
+    url: "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32019L0882"
+    topic: accessibility
+    jurisdiction: EU
+    official: true
+    effectiveDate: "2025-06-28"
+    retrievedAt: "2026-11-14T22:55:59Z"
+    verifiedAt: "2026-11-14T22:55:59Z"
+    verifiedBy: "Claude Code (automated read; not human sign-off)"
+    verificationMethod: automated
+    reviewCadenceDays: 365
+    contentHash: "f1047e0732b744f5e7bd0e01c69d1db54a461de693ab375aa5b39a0c212fa50d"
+    notes: "Applied through national laws; check the member states you serve."
+    claims:
+      - { id: microenterprise-def, claim: "Art. 3(23): a microenterprise employs fewer than 10 persons and has turnover or balance sheet of at most EUR 2 million", status: confirmed }
+      - { id: services-exemption, claim: "Art. 4(5): microenterprises providing services are exempt from the accessibility requirements", status: confirmed }
+      - { id: application-date, claim: "Art. 31(2): measures apply from 28 June 2025; Art. 4(8) obligations may apply from 28 June 2027 at the latest", status: confirmed }
+  - id: SRC-ADA-WEB
+    publisher: US Department of Justice
+    title: "Guidance on web accessibility and the ADA"
+    url: "https://www.ada.gov/resources/web-guidance/"
+    topic: accessibility
+    jurisdiction: US
+    official: true
+    retrievedAt: "2026-11-14T22:55:59Z"
+    verifiedAt: "2026-11-14T22:55:59Z"
+    verifiedBy: "Claude Code (automated read; not human sign-off)"
+    verificationMethod: automated
+    reviewCadenceDays: 365
+    claims:
+      - { id: title-iii-web, claim: "Title III applies to goods and services of public accommodations, including those offered on the web", status: confirmed }
+      - { id: wcag-referenced, claim: "WCAG is referenced as helpful technical guidance", status: confirmed }
+  - id: SRC-WCAG22
+    publisher: W3C
+    title: "Web Content Accessibility Guidelines (WCAG) 2.2"
+    url: "https://www.w3.org/TR/WCAG22/"
+    topic: accessibility
+    jurisdiction: global
+    official: true
+    retrievedAt: "2026-11-14T22:55:59Z"
+    verifiedAt: "2026-11-14T22:55:59Z"
+    verifiedBy: "Claude Code (automated read; not human sign-off)"
+    verificationMethod: automated
+    reviewCadenceDays: 365
+    claims:
+      - { id: recommendation, claim: "WCAG 2.2 is a W3C Recommendation (current edition dated 12 December 2024)", status: confirmed }
+
+  # ============================ AI ============================
+  - id: SRC-EU-AI-ACT
+    publisher: European Union
+    title: "Regulation (EU) 2024/1689 (AI Act), consolidated version of 27 July 2026"
+    url: "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:02024R1689-20260727"
+    topic: ai
+    jurisdiction: EU
+    official: true
+    effectiveDate: "2026-08-02"
+    retrievedAt: "2026-11-14T22:55:59Z"
+    verifiedAt: "2026-11-14T22:55:59Z"
+    verifiedBy: "Claude Code (automated read; not human sign-off)"
+    verificationMethod: automated
+    reviewCadenceDays: 90
+    contentHash: "5e7719f77e8a606b257dc25958ee3222c4383300a5a34270a5b850a2ce8b8715"
+    notes: "Amended by Regulation (EU) 2026/1744 (Digital Omnibus on AI). Consolidated texts are documentation; the Official Journal acts are authoritative."
+    claims:
+      - { id: art50-1-provider-interaction, claim: "Art. 50(1): providers must design AI systems that interact directly with people so that people are informed, unless obvious from context", status: confirmed }
+      - { id: art50-2-provider-marking, claim: "Art. 50(2): providers of systems generating synthetic audio, image, video or text must mark outputs in a machine-readable, detectable way", status: confirmed }
+      - { id: art50-3-deployer-emotion, claim: "Art. 50(3): deployers of emotion recognition or biometric categorisation systems must inform the people exposed", status: confirmed }
+      - { id: art50-4-deployer-deepfake, claim: "Art. 50(4): deployers of systems generating deepfakes must disclose that the content is artificially generated or manipulated", status: confirmed }
+      - { id: dates-original, claim: "General application 2 August 2026; Chapters I-II from 2 February 2025; GPAI and governance from 2 August 2025", status: confirmed }
+  - id: SRC-EU-AI-OMNIBUS
+    publisher: European Union
+    title: "Regulation (EU) 2026/1744 (Digital Omnibus on AI)"
+    url: "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32026R1744"
+    topic: ai
+    jurisdiction: EU
+    official: true
+    effectiveDate: "2026-07-27"
+    retrievedAt: "2026-11-14T22:55:59Z"
+    verifiedAt: "2026-11-14T22:55:59Z"
+    verifiedBy: "Claude Code (automated read; not human sign-off)"
+    verificationMethod: automated
+    reviewCadenceDays: 90
+    contentHash: "9d754652b867722807e4219c85912ce354233e58a1b4eb8c7752b4d1922993db"
+    claims:
+      - { id: high-risk-delay, claim: "High-risk obligations (Chapter III, Sections 1-3) apply from 2 December 2027 for Annex III systems and 2 August 2028 for Annex I systems", status: confirmed, note: "Our earlier rule did not reflect this amendment; corrected." }
+      - { id: art50-2-transition, claim: "Providers of generative systems placed on the market before 2 August 2026 must comply with Art. 50(2) marking by 2 December 2026", status: confirmed }
+      - { id: new-prohibitions, claim: "New Art. 5(1)(ba)-(bb) and 5(1a)-(1b) prohibitions apply from 2 December 2026", status: confirmed }
+
+  # ============================ sector ============================
+  - id: SRC-HHS-HIPAA
+    publisher: US Department of Health and Human Services
+    title: "HIPAA: covered entities and business associates"
+    url: "https://www.hhs.gov/hipaa/for-professionals/covered-entities/index.html"
+    topic: sector
+    jurisdiction: US
+    official: true
+    retrievedAt: "2026-11-14T22:55:59Z"
+    verifiedAt: "2026-11-14T22:55:59Z"
+    verifiedBy: "Claude Code (automated read; not human sign-off)"
+    verificationMethod: automated
+    reviewCadenceDays: 365
+    notes: "Direct fetches return 403; read through a rendering scraper. Page last modified 2026-03-17."
+    claims:
+      - { id: covered-entities, claim: "Covered entities are health plans, health care clearinghouses, and providers that transmit health information electronically in standard transactions; business associates handle PHI on their behalf", status: confirmed }
+  - id: SRC-ED-FERPA
+    publisher: US Department of Education
+    title: "Student Privacy Policy Office (FERPA)"
+    url: "https://studentprivacy.ed.gov/"
+    topic: sector
+    jurisdiction: US
+    official: true
+    retrievedAt: "2026-11-14T22:55:59Z"
+    verifiedAt: "2026-11-14T22:55:59Z"
+    verifiedBy: "Claude Code (automated read; not human sign-off)"
+    verificationMethod: automated
+    reviewCadenceDays: 365
+    claims:
+      - { id: sppo-administers, claim: "The Student Privacy Policy Office administers and enforces FERPA", status: confirmed }
+      - { id: school-official-exception, claim: "Vendors receive education records under the school-official conditions of contracts with covered institutions", status: partial, note: "Not described on the landing page; needs the regulations or SPPO vendor guidance." }
+  - id: SRC-FTC-GLBA
+    publisher: US Federal Trade Commission
+    title: "Gramm-Leach-Bliley Act guidance"
+    url: "https://www.ftc.gov/business-guidance/privacy-security/gramm-leach-bliley-act"
+    topic: sector
+    jurisdiction: US
+    official: true
+    retrievedAt: "2026-11-14T22:55:59Z"
+    verifiedAt: "2026-11-14T22:55:59Z"
+    verifiedBy: "Claude Code (automated read; not human sign-off)"
+    verificationMethod: automated
+    reviewCadenceDays: 365
+    claims:
+      - { id: fi-definition, claim: "Financial institutions are companies that offer consumers financial products or services such as loans, financial or investment advice, or insurance", status: confirmed, note: "The rule's own definition uses 'significantly engaged in financial activities'; that phrase is not on this page." }
+      - { id: safeguards-privacy-rules, claim: "The FTC's Safeguards Rule and Privacy Rule apply to covered financial institutions", status: confirmed }
+
+  # ============================ attestations ============================
+  - id: SRC-AICPA-SOC2
+    publisher: AICPA & CIMA
+    title: "SOC for Service Organizations (SOC 2)"
+    url: "https://www.aicpa-cima.com/topic/audit-assurance/audit-and-assurance-greater-than-soc-2"
+    topic: attestation
+    jurisdiction: global
+    official: true
+    retrievedAt: "2026-11-14T22:55:59Z"
+    verifiedAt: "2026-11-14T22:55:59Z"
+    verifiedBy: "Claude Code (automated read; not human sign-off)"
+    verificationMethod: automated
+    reviewCadenceDays: 365
+    notes: "The page references an exposure draft of proposed 2027 SOC 2 Trust Services Criteria; watch for adoption."
+    claims:
+      - { id: soc2-publication, claim: "AICPA publishes SOC 2 reporting guidance on examinations of controls at a service organization", status: confirmed }
+      - { id: type1-type2, claim: "Type 1 covers design at a point in time; Type 2 adds operating effectiveness over a period", status: partial, note: "Not described on this page." }
+  - id: SRC-ISO-27001
+    publisher: ISO
+    title: "ISO/IEC 27001 Information security management systems"
+    url: "https://www.iso.org/standard/27001"
+    topic: attestation
+    jurisdiction: global
+    official: true
+    retrievedAt: "2026-11-14T22:55:59Z"
+    verifiedAt: "2026-11-14T22:55:59Z"
+    verifiedBy: "Claude Code (automated read; not human sign-off)"
+    verificationMethod: automated
+    reviewCadenceDays: 365
+    claims:
+      - { id: current-edition, claim: "Current edition is ISO/IEC 27001:2022 (edition 3) with Amd 1:2024", status: confirmed }
+
+  # ============================ sanctions ============================
+  - id: SRC-OFAC-PROGRAMS
+    publisher: US Treasury OFAC
+    title: "Sanctions programs and country information"
+    url: "https://ofac.treasury.gov/sanctions-programs-and-country-information"
+    topic: sanctions
+    jurisdiction: US
+    official: true
+    retrievedAt: "2026-11-14T22:55:59Z"
+    verifiedAt: "2026-11-14T22:55:59Z"
+    verifiedBy: "Claude Code (automated read; not human sign-off)"
+    verificationMethod: automated
+    reviewCadenceDays: 30
+    notes: "Program pages change often; the sanctions snapshot workflow checks restrictions daily. This record verifies the index itself."
+    claims:
+      - { id: program-index, claim: "OFAC's official index of sanctions programs, including Ukraine-/Russia-related programs", status: confirmed }
+  - id: SRC-OFAC-UKRAINE
+    publisher: US Treasury OFAC
+    title: "Ukraine-/Russia-related sanctions"
+    url: "https://ofac.treasury.gov/sanctions-programs-and-country-information/ukraine-russia-related-sanctions"
+    topic: sanctions
+    jurisdiction: US
+    official: true
+    retrievedAt: "2026-11-14T22:55:59Z"
+    verifiedAt: "2026-11-14T22:55:59Z"
+    verifiedBy: "Claude Code (automated read; not human sign-off)"
+    verificationMethod: automated
+    reviewCadenceDays: 30
+    claims:
+      - { id: eo-13685-crimea, claim: "EO 13685 restricts transactions with respect to the Crimea region of Ukraine", status: confirmed }
+      - { id: eo-14065-listed, claim: "EO 14065 is part of the program", status: confirmed }
+  - id: SRC-OFAC-FAQ-1009
+    publisher: US Treasury OFAC
+    title: "FAQ 1009: Does EO 14065 block the entire Donetsk and Luhansk oblasts?"
+    url: "https://ofac.treasury.gov/faqs/1009"
+    topic: sanctions
+    jurisdiction: US
+    official: true
+    retrievedAt: "2026-11-14T22:55:59Z"
+    verifiedAt: "2026-11-14T22:55:59Z"
+    verifiedBy: "Claude Code (automated read; not human sign-off)"
+    verificationMethod: automated
+    reviewCadenceDays: 90
+    notes: "Read from a search excerpt of the official FAQ (and FAQ 1006 for the prohibitions)."
+    claims:
+      - { id: not-whole-oblasts, claim: "EO 14065 does not block the entire Donetsk and Luhansk oblasts; it targets the so-called DNR and LNR regions and other regions Treasury determines", status: confirmed }
+      - { id: vetted-third-party-data, claim: "US persons may reasonably rely on vetted third-party information such as postal codes and maps to determine whether a location is in a covered region", status: confirmed }
+  - id: SRC-OFAC-SLS
+    publisher: US Treasury OFAC
+    title: "Sanctions List Service"
+    url: "https://ofac.treasury.gov/sanctions-list-service"
+    topic: sanctions
+    jurisdiction: US
+    official: true
+    retrievedAt: "2026-11-14T22:55:59Z"
+    verifiedAt: "2026-11-14T22:55:59Z"
+    verifiedBy: "Claude Code (automated read; not human sign-off)"
+    verificationMethod: automated
+    reviewCadenceDays: 30
+    notes: "Name lists. A list entry is not a geographic service restriction. The list application at sanctionslist.ofac.treas.gov renders by JavaScript."
+    claims:
+      - { id: sdn-and-consolidated, claim: "The Sanctions List Service provides the SDN List and the Consolidated (non-SDN) List", status: confirmed }
+  - id: SRC-EU-SANCTIONS-MAP
+    publisher: European Union
+    title: "EU Sanctions Map"
+    url: "https://www.sanctionsmap.eu/"
+    topic: sanctions
+    jurisdiction: EU
+    official: true
+    retrievedAt: "2026-11-14T22:55:59Z"
+    verifiedAt: "2026-11-14T22:55:59Z"
+    verifiedBy: "Claude Code (automated read; not human sign-off)"
+    verificationMethod: automated
+    reviewCadenceDays: 30
+    notes: "Single-page application; only the title rendered for automated reads. Treat as orientation; the legal acts in the Official Journal are authoritative."
+    claims:
+      - { id: map-exists, claim: "The EU Sanctions Map is published", status: confirmed }
+      - { id: informational-only, claim: "The map is informational and the Official Journal acts are authoritative", status: partial, note: "Disclaimer not visible to the fetch." }
+  - id: SRC-UK-SANCTIONS
+    publisher: UK Government
+    title: "Current UK sanctions regimes (under the Sanctions Act)"
+    url: "https://www.gov.uk/government/collections/uk-sanctions-regimes-under-the-sanctions-act"
+    topic: sanctions
+    jurisdiction: UK
+    official: true
+    retrievedAt: "2026-11-14T22:55:59Z"
+    verifiedAt: "2026-11-14T22:55:59Z"
+    verifiedBy: "Claude Code (automated read; not human sign-off)"
+    verificationMethod: automated
+    reviewCadenceDays: 30
+    notes: "The previous collection URL (uk-sanctions-regimes) returns 404."
+    claims:
+      - { id: regimes-and-notices, claim: "Statutory guidance, designations and sanctions notices for each UK regime are published on this collection", status: confirmed, note: "Confirmed through the GOV.UK single-list guidance that links here." }
+  - id: SRC-UK-SANCTIONS-LIST
+    publisher: UK Foreign, Commonwealth and Development Office
+    title: "The UK Sanctions List"
+    url: "https://www.gov.uk/government/publications/the-uk-sanctions-list"
+    topic: sanctions
+    jurisdiction: UK
+    official: true
+    effectiveDate: "2026-01-28"
+    retrievedAt: "2026-11-14T22:55:59Z"
+    verifiedAt: "2026-11-14T22:55:59Z"
+    verifiedBy: "Claude Code (automated read; not human sign-off)"
+    verificationMethod: automated
+    reviewCadenceDays: 30
+    claims:
+      - { id: single-list, claim: "Since 28 January 2026 the UK Sanctions List is the only source of UK sanctions designations; the OFSI Consolidated List is closed and no longer updated", status: confirmed }
+  - id: SRC-UK-OFSI
+    publisher: UK Office of Financial Sanctions Implementation
+    title: "OFSI guidance"
+    url: "https://www.gov.uk/government/organisations/office-of-financial-sanctions-implementation"
+    topic: sanctions
+    jurisdiction: UK
+    official: true
+    retrievedAt: "2026-11-14T22:55:59Z"
+    verifiedAt: "2026-11-14T22:55:59Z"
+    verifiedBy: "Claude Code (automated read; not human sign-off)"
+    verificationMethod: automated
+    reviewCadenceDays: 30
+    claims:
+      - { id: ofsi-hmt, claim: "OFSI is part of HM Treasury and publishes financial sanctions guidance", status: confirmed }
+  - id: SRC-OPENSANCTIONS
+    publisher: OpenSanctions
+    title: "OpenSanctions datasets"
+    url: "https://www.opensanctions.org/"
+    topic: sanctions
+    jurisdiction: global
+    official: false
+    retrievedAt: "2026-11-14T22:55:59Z"
+    verifiedAt: "2026-11-14T22:55:59Z"
+    verifiedBy: "Claude Code (automated read; not human sign-off)"
+    verificationMethod: automated
+    reviewCadenceDays: 90
+    license: "CC BY-NC 4.0 for non-commercial use; commercial use requires a paid data licence or the paid API."
+    notes: "Supplementary normalisation only; verify against official sources."
+    claims:
+      - { id: licence, claim: "Free for non-commercial use under CC BY-NC 4.0; business users need a data licence or the paid screening API", status: confirmed }
+
+  # ============================ geo / threat ============================
+  - id: SRC-EU-GEOBLOCKING
+    publisher: European Union
+    title: "Regulation (EU) 2018/302 on unjustified geo-blocking"
+    url: "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32018R0302"
+    topic: geo
+    jurisdiction: EU
+    official: true
+    retrievedAt: "2026-11-14T22:55:59Z"
+    verifiedAt: "2026-11-14T22:55:59Z"
+    verifiedBy: "Claude Code (automated read; not human sign-off)"
+    verificationMethod: automated
+    reviewCadenceDays: 365
+    contentHash: "0ec80603166aa96260f28889ff115093e4da0f643fb948f7e871ca7cc6eae62b"
+    claims:
+      - { id: scope-exclusions, claim: "Art. 1: does not apply to purely internal situations or to activities excluded by Art. 2(2) of the Services Directive", status: confirmed }
+      - { id: legal-requirement-exception, claim: "Art. 3(3): blocking or limiting access is permitted when necessary to comply with Union or member-state law, with a clear explanation to customers", status: confirmed }
+  - id: SRC-CLOUDFLARE-WAF
+    publisher: Cloudflare
+    title: "WAF custom rules"
+    url: "https://developers.cloudflare.com/waf/custom-rules/"
+    topic: geo
+    jurisdiction: global
+    official: true
+    retrievedAt: "2026-11-14T22:55:59Z"
+    verifiedAt: "2026-11-14T22:55:59Z"
+    verifiedBy: "Claude Code (automated read; not human sign-off)"
+    verificationMethod: automated
+    reviewCadenceDays: 90
+    claims:
+      - { id: actions, claim: "Custom rules can Block, Managed Challenge or Skip", status: confirmed }
+      - { id: log-enterprise-only, claim: "The Log action is available only on Enterprise plans", status: confirmed }
+  - id: SRC-CLOUDFLARE-FIELDS
+    publisher: Cloudflare
+    title: "Rules language fields: ip.src.country and ip.src.subdivision_1_iso_code"
+    url: "https://developers.cloudflare.com/ruleset-engine/rules-language/fields/reference/ip.src.subdivision_1_iso_code/"
+    topic: geo
+    jurisdiction: global
+    official: true
+    retrievedAt: "2026-11-14T22:55:59Z"
+    verifiedAt: "2026-11-14T22:55:59Z"
+    verifiedBy: "Claude Code (automated read; not human sign-off)"
+    verificationMethod: automated
+    reviewCadenceDays: 90
+    claims:
+      - { id: subdivision-field, claim: "ip.src.subdivision_1_iso_code holds the ISO 3166-2 first-level region (empty if unknown) and requires a Business or Enterprise plan", status: confirmed }
+      - { id: country-field, claim: "ip.src.country holds the ISO 3166-1 alpha-2 country code and replaces the deprecated ip.geoip.country", status: confirmed, note: "Plan availability not stated on its page." }
+  - id: SRC-AWS-WAF-GEO
+    publisher: Amazon Web Services
+    title: "AWS WAF geographic match rule statement"
+    url: "https://docs.aws.amazon.com/waf/latest/developerguide/waf-rule-statement-type-geo-match.html"
+    topic: geo
+    jurisdiction: global
+    official: true
+    retrievedAt: "2026-11-14T22:55:59Z"
+    verifiedAt: "2026-11-14T22:55:59Z"
+    verifiedBy: "Claude Code (automated read; not human sign-off)"
+    verificationMethod: automated
+    reviewCadenceDays: 90
+    claims:
+      - { id: country-match, claim: "GeoMatchStatement matches ISO 3166-1 alpha-2 country codes", status: confirmed }
+      - { id: region-via-labels, claim: "Region matching needs a geo match rule (for example with Count) followed by a label match rule on awswaf:clientip:geo:region:<CC>-<RR>; a geo match alone cannot match regions", status: confirmed }
+      - { id: unknown-xx, claim: "Unknown country or region codes are labelled XX", status: confirmed }
+      - { id: cloudfront-interaction, claim: "CloudFront geo restriction does not forward blocked requests to AWS WAF", status: confirmed }
+  - id: SRC-AWS-CLOUDFRONT-GEO
+    publisher: Amazon Web Services
+    title: "CloudFront geographic restrictions"
+    url: "https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/georestrictions.html"
+    topic: geo
+    jurisdiction: global
+    official: true
+    retrievedAt: "2026-11-14T22:55:59Z"
+    verifiedAt: "2026-11-14T22:55:59Z"
+    verifiedBy: "Claude Code (automated read; not human sign-off)"
+    verificationMethod: automated
+    reviewCadenceDays: 90
+    claims:
+      - { id: country-level-whole-distribution, claim: "Geo restriction is a country-level allow list or block list applied to a whole distribution", status: confirmed }
+      - { id: unknown-location-served, claim: "If CloudFront cannot determine a user's location it serves the content", status: confirmed }
+  - id: SRC-CLOUDFLARE-RADAR
+    publisher: Cloudflare
+    title: "Cloudflare Radar"
+    url: "https://radar.cloudflare.com/"
+    topic: threat
+    jurisdiction: global
+    official: false
+    retrievedAt: "2026-11-14T22:55:59Z"
+    verifiedAt: "2026-11-14T22:55:59Z"
+    verifiedBy: "Claude Code (automated read; not human sign-off)"
+    verificationMethod: automated
+    reviewCadenceDays: 30
+    notes: "Aggregate context only; not a per-country risk score for your service."
+    claims:
+      - { id: aggregate-trends, claim: "Publishes aggregate internet trends observed on Cloudflare's network", status: confirmed }
+  - id: SRC-CISA-ADVISORIES
+    publisher: US CISA
+    title: "Cybersecurity alerts and advisories"
+    url: "https://www.cisa.gov/news-events/cybersecurity-advisories"
+    topic: threat
+    jurisdiction: US
+    official: true
+    retrievedAt: "2026-11-14T22:55:59Z"
+    verifiedAt: "2026-11-14T22:55:59Z"
+    verifiedBy: "Claude Code (automated read; not human sign-off)"
+    verificationMethod: automated
+    reviewCadenceDays: 7
+    notes: "Advisories describe threats and vulnerabilities, not country risk scores."
+    claims:
+      - { id: advisories-listing, claim: "Lists CISA alerts, cybersecurity advisories, ICS advisories and Known Exploited Vulnerabilities additions", status: confirmed }
+  - id: SRC-SPAMHAUS-DROP
+    publisher: Spamhaus
+    title: "Don't Route Or Peer (DROP) lists"
+    url: "https://www.spamhaus.org/blocklists/do-not-route-or-peer/"
+    topic: threat
+    jurisdiction: global
+    official: false
+    retrievedAt: "2026-11-14T22:55:59Z"
+    verifiedAt: "2026-11-14T22:55:59Z"
+    verifiedBy: "Claude Code (automated read; not human sign-off)"
+    verificationMethod: automated
+    reviewCadenceDays: 30
+    license: "Free for any use with credit to The Spamhaus Project; keep date and copyright with the data; download no more than once per hour (once per day recommended)."
+    notes: "Network ranges and ASNs, not countries."
+    claims:
+      - { id: drop-scope, claim: "Advisory lists of netblocks and ASNs used by professional spam or cybercrime operations, updated daily", status: confirmed }
+      - { id: terms, claim: "Free for any use with attribution; downloads at least one hour apart", status: confirmed }
+  - id: SRC-ABUSE-CH
+    publisher: abuse.ch
+    title: "abuse.ch threat intelligence"
+    url: "https://abuse.ch/"
+    topic: threat
+    jurisdiction: global
+    official: false
+    retrievedAt: "2026-11-14T22:55:59Z"
+    verifiedAt: "2026-11-14T22:55:59Z"
+    verifiedBy: "Claude Code (automated read; not human sign-off)"
+    verificationMethod: automated
+    reviewCadenceDays: 30
+    license: "Mixed: Feodo Tracker, SSL Blacklist and YARAify are CC0; MalwareBazaar, URLhaus and ThreatFox are free only for authenticated non-commercial use (commercial use via a Spamhaus subscription). No AI training without written consent."
+    notes: "Indicators, not countries. Terms at https://abuse.ch/terms-of-use/."
+    claims:
+      - { id: platforms, claim: "Community threat-intelligence platforms (URLhaus, ThreatFox, MalwareBazaar, Feodo Tracker, SSLBL, YARAify), run with Spamhaus", status: confirmed }
+      - { id: licence, claim: "Licence differs per dataset; commercial use of URLhaus, ThreatFox and MalwareBazaar needs a subscription", status: confirmed }

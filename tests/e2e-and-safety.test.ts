@@ -10,6 +10,7 @@ import { redact, containsSecret } from '../src/lib/redact.js';
 import { parseStructured } from '../src/lib/io.js';
 import { loadSources } from '../src/knowledge/load.js';
 import { sourceStatus, refreshSources, isPublicAddress } from '../src/sources/sources.js';
+import { SourceRecord } from '../src/domain/schemas.js';
 import { example, intakeFile, NOW, root, tmp } from './helpers.js';
 
 test('offline end-to-end assessment works for every example, partial and complete', () => {
@@ -64,10 +65,16 @@ test('YAML parsing is safe: alias bombs and custom tags are refused or neutral',
   assert.notEqual(typeof tagged.x, 'function');
 });
 
-test('sources start unverified; refresh is a dry run by default and never verifies', async () => {
+test('source verification is honest about method; refresh is a dry run by default and never verifies', async () => {
   const reg = loadSources();
   const st = sourceStatus(reg, NOW);
-  assert.ok(st.every((s) => s.state === 'unverified'), 'no fabricated verification dates');
+  assert.ok(st.every((s) => s.state !== 'human_verified'), 'automated checks never count as human sign-off');
+  assert.ok(reg.sources.every((s) => !s.verifiedAt || (s.verificationMethod === 'automated' && /not human sign-off/.test(s.verifiedBy ?? ''))));
+  assert.ok(reg.sources.filter((s) => s.verifiedAt).every((s) => s.claims.length > 0), 'every verified source records the claims checked');
+  for (const s of st.filter((x) => x.state === 'partially_verified')) assert.ok(s.openClaims.length > 0, s.id);
+  assert.ok(st.filter((s) => s.state === 'machine_verified').length >= 30);
+  const later = sourceStatus(reg, new Date('2028-01-01T00:00:00Z'));
+  assert.ok(later.some((s) => s.state === 'stale'), 'verification expires after the review cadence');
   let fetched = 0;
   const res = await refreshSources(reg, { allowNetwork: false, fetchImpl: (async () => { fetched++; return new Response(''); }) as typeof fetch });
   assert.equal(fetched, 0);
@@ -77,7 +84,7 @@ test('sources start unverified; refresh is a dry run by default and never verifi
   assert.equal(fetched, 0, 'SSRF guard blocks private addresses before fetching');
   const changed = await refreshSources({ ...reg, sources: [{ ...reg.sources[0]!, contentHash: 'old' }] }, { allowNetwork: true, resolve: async () => ['93.184.215.14'], fetchImpl: (async () => new Response('new content')) as typeof fetch });
   assert.equal(changed[0]!.action, 'fetched_changed');
-  assert.equal(loadSources().sources[0]!.verifiedAt, null);
+  assert.equal(loadSources().sources[0]!.verifiedAt, reg.sources[0]!.verifiedAt, 'refresh never changes verification fields');
   for (const ip of ['127.0.0.1', '169.254.169.254', '192.168.1.1', '::1', 'fd00::1', '::ffff:10.0.0.1']) assert.equal(isPublicAddress(ip), false, ip);
   assert.equal(isPublicAddress('8.8.8.8'), true);
 });
@@ -93,4 +100,12 @@ test('CLI: clean-checkout commands run offline and refuse unsafe operations', ()
   const feed = run('geo', 'feed', '--policy', 'examples/geo/policy.yaml', '--now', '2026-11-14T12:00:00Z');
   assert.equal(feed.code, 5);
   assert.match(feed.out, /stays in force/);
+});
+
+test('source records cannot claim verification without method, verifier and checked claims', () => {
+  const base = { id: 'SRC-X', publisher: 'p', title: 't', url: 'https://example.test/x', topic: 't', jurisdiction: 'j', official: true, reviewCadenceDays: 30 };
+  assert.equal(SourceRecord.safeParse(base).success, true);
+  assert.equal(SourceRecord.safeParse({ ...base, verifiedAt: '2026-11-14T00:00:00Z', verifiedBy: 'me', verificationMethod: 'human' }).success, false, 'no claims recorded');
+  assert.equal(SourceRecord.safeParse({ ...base, verifiedAt: '2026-11-14T00:00:00Z', claims: [{ id: 'a', claim: 'something', status: 'confirmed' }] }).success, false, 'no verifier or method');
+  assert.equal(SourceRecord.safeParse({ ...base, verifiedAt: '2026-11-14T00:00:00Z', verifiedBy: 'me', verificationMethod: 'human', claims: [{ id: 'a', claim: 'something', status: 'confirmed' }] }).success, true);
 });

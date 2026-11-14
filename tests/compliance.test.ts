@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { RULES, CCPA_REVENUE_BASE_USD, CCPA_REVENUE_ADJUSTED_USD } from '../src/engines/compliance/applicability.js';
+import { RULES, CCPA_REVENUE_THRESHOLD_USD } from '../src/engines/compliance/applicability.js';
 import { positionSoc2 } from '../src/engines/compliance/compliance.js';
 import { runAssessment } from '../src/assess.js';
 import { biz, intakeFile } from './helpers.js';
@@ -50,12 +50,15 @@ test('user location alone does not trigger GDPR', () => {
   assert.equal(rule('OB-GDPR', biz({ dataClasses: ['personal'] })).status, 'uncertain');
 });
 
-test('CCPA thresholds and the unverified CPI adjustment', () => {
+test('CCPA thresholds use the verified CPI-adjusted revenue figure', () => {
   const p = (privacy: object) => rule('OB-CCPA', biz({ ...usOnly, privacy: { sellsOrSharesPersonalData: 'no', ...privacy } as never }));
+  assert.equal(CCPA_REVENUE_THRESHOLD_USD, 26_625_000);
   assert.equal(p({ annualGrossRevenueUsd: 1_000_000, caResidentsPersonalDataPerYear: 5000 }).status, 'not_applicable');
   assert.equal(p({ annualGrossRevenueUsd: 1_000_000, caResidentsPersonalDataPerYear: 150_000 }).status, 'applicable');
-  assert.equal(p({ annualGrossRevenueUsd: CCPA_REVENUE_ADJUSTED_USD + 1, caResidentsPersonalDataPerYear: 0 }).status, 'applicable');
-  assert.equal(p({ annualGrossRevenueUsd: CCPA_REVENUE_BASE_USD + 1, caResidentsPersonalDataPerYear: 0 }).status, 'uncertain');
+  assert.equal(p({ annualGrossRevenueUsd: CCPA_REVENUE_THRESHOLD_USD + 1, caResidentsPersonalDataPerYear: 0 }).status, 'applicable');
+  assert.equal(p({ annualGrossRevenueUsd: CCPA_REVENUE_THRESHOLD_USD, caResidentsPersonalDataPerYear: 0 }).status, 'not_applicable', 'the statute says exceeds');
+  assert.equal(p({ annualGrossRevenueUsd: 25_000_001, caResidentsPersonalDataPerYear: 0 }).status, 'not_applicable', 'the old unadjusted base no longer applies');
+  assert.match(p({ annualGrossRevenueUsd: 1, caResidentsPersonalDataPerYear: 0 }).notes.join(' '), /re-check it after 2027-01-01/);
   assert.equal(p({}).status, 'uncertain');
 });
 
@@ -82,13 +85,21 @@ test('accessibility microenterprise exemption and AI duties vary by trigger', ()
   assert.equal(rule('OB-EAA', biz({ accessibility: { offersEaaCoveredServicesInEu: 'yes', microenterprise: 'no' } })).status, 'applicable');
   const noTrigger = rule('OB-EU-AI-ACT', biz({ targetMarkets: ['DE'], ai: { usesAi: 'yes', role: 'deployer', usersInteractWithAiSystem: 'no', generatesSyntheticContent: 'no', possibleHighRiskUseCase: 'no', outputUsedInEu: 'yes' } }));
   assert.match(noTrigger.reasoning.join(' '), /no specific transparency or high-risk trigger/);
-  const chat = rule('OB-EU-AI-ACT', biz({ targetMarkets: ['DE'], ai: { usesAi: 'yes', role: 'deployer', usersInteractWithAiSystem: 'yes', outputUsedInEu: 'yes' } }));
-  assert.match(chat.reasoning.join(' '), /disclosure duty is likely/);
+  const deployerChat = rule('OB-EU-AI-ACT', biz({ targetMarkets: ['DE'], ai: { usesAi: 'yes', role: 'deployer', usersInteractWithAiSystem: 'yes', outputUsedInEu: 'yes' } }));
+  assert.match(deployerChat.reasoning.join(' '), /falls on the provider/);
+  const providerChat = rule('OB-EU-AI-ACT', biz({ targetMarkets: ['DE'], ai: { usesAi: 'yes', role: 'provider', usersInteractWithAiSystem: 'yes', generatesSyntheticContent: 'yes', outputUsedInEu: 'yes' } }));
+  assert.match(providerChat.reasoning.join(' '), /Art\. 50\(1\)/);
+  assert.match(providerChat.reasoning.join(' '), /2 December 2026/);
+  const highRisk = rule('OB-EU-AI-ACT', biz({ targetMarkets: ['DE'], ai: { usesAi: 'yes', role: 'provider', possibleHighRiskUseCase: 'yes', outputUsedInEu: 'yes' } }));
+  assert.match(highRisk.reasoning.join(' '), /2 December 2027.*2 August 2028/);
 });
 
 test('every obligation result carries reasoning and voluntary attestations are never obligations', () => {
   const r = runAssessment({ intake: intakeFile('03-global-growth-uploads.yaml') });
   for (const o of r.compliance!.results) assert.ok(o.reasoning.length > 0, o.obligation.id);
   assert.ok(r.compliance!.results.filter((o) => o.obligation.category === 'voluntary').every((o) => o.status === 'not_applicable'));
-  assert.ok(r.compliance!.results.every((o) => !o.sourcesVerified), 'all sources are unverified in this repository');
+  assert.ok(r.compliance!.results.every((o) => o.sourceSupport !== 'human_verified'), 'no source has human sign-off yet; nothing may claim it');
+  assert.ok(r.compliance!.results.some((o) => o.sourceSupport === 'machine_verified'));
+  const partial = r.compliance!.results.find((o) => o.sourceSupport === 'partially_verified');
+  assert.ok(partial && partial.weakSources.length > 0, 'partially verified obligations name their weak sources');
 });

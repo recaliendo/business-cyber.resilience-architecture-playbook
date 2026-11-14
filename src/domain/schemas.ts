@@ -343,6 +343,16 @@ export const ObligationCatalog = z.object({ version: z.string(), obligations: z.
 export type ObligationCatalog = z.infer<typeof ObligationCatalog>;
 
 // ---------- sources ----------
+export const SourceClaim = z.object({
+  id: z.string().regex(/^[a-z0-9-]+$/),
+  claim: z.string().min(5),
+  /** confirmed: found in the source. partial: source exists but this detail was not visible.
+   *  not_confirmed: could not be checked. contradicted: the source says otherwise (rule was changed). */
+  status: z.enum(['confirmed', 'partial', 'not_confirmed', 'contradicted']),
+  note: z.string().optional(),
+});
+export type SourceClaim = z.infer<typeof SourceClaim>;
+
 export const SourceRecord = z.object({
   id: z.string().regex(/^SRC-[A-Z0-9-]+$/),
   publisher: z.string(),
@@ -355,10 +365,24 @@ export const SourceRecord = z.object({
   retrievedAt: IsoDateTime.nullable().default(null),
   verifiedAt: IsoDateTime.nullable().default(null),
   verifiedBy: z.string().nullable().default(null),
+  /**
+   * human: a named person read the source and signed off.
+   * automated: a tool (for example Claude Code) fetched and read it and checked the listed claims.
+   * Automated verification is reported as "machine-verified, awaiting human sign-off" and never
+   * counts as human review.
+   */
+  verificationMethod: z.enum(['human', 'automated']).nullable().default(null),
+  /** The specific facts our rules depend on, and what verification found for each. */
+  claims: z.array(SourceClaim).default([]),
   reviewCadenceDays: z.number().int().positive(),
   contentHash: z.string().nullable().default(null),
   license: z.string().optional(),
   notes: z.string().optional(),
+}).superRefine((s, ctx) => {
+  if (s.verifiedAt && (!s.verifiedBy || !s.verificationMethod)) ctx.addIssue({ code: 'custom', message: 'verifiedAt requires verifiedBy and verificationMethod' });
+  if (s.verificationMethod && !s.verifiedAt) ctx.addIssue({ code: 'custom', message: 'verificationMethod requires verifiedAt' });
+  if (s.verifiedAt && s.claims.length === 0) ctx.addIssue({ code: 'custom', message: 'a verified source must record the claims that were checked' });
+  if (new Set(s.claims.map((c) => c.id)).size !== s.claims.length) ctx.addIssue({ code: 'custom', message: 'claim ids must be unique within a source' });
 });
 export type SourceRecord = z.infer<typeof SourceRecord>;
 export const SourceRegistry = z.object({ version: z.string(), sources: z.array(SourceRecord) });
