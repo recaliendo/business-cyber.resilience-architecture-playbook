@@ -1,6 +1,8 @@
 # Copy to .github/workflows/ci.yml in a new project.
 # Minimum CI: install, typecheck, build, secret scan. Add a gated dependency-audit job
 # once you have a waiver mechanism for advisories with no available fix.
+# The grep secret scan only checks the current tree. Also run gitleaks over full history
+# (see .github/workflows/security.yml in the playbook repo).
 name: CI
 
 on:
@@ -8,11 +10,17 @@ on:
   push:
     branches: [main, staging]
 
+# Least privilege for the GITHUB_TOKEN. Widen per job only when a step needs it.
+permissions:
+  contents: read
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4 # pin to a full commit SHA in real projects; Dependabot updates it
+        with:
+          persist-credentials: false
 
       - uses: actions/setup-node@v4
         with:
@@ -32,6 +40,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
 
       - name: Scan for likely secrets
         run: |
