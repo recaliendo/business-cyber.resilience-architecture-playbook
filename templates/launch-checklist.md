@@ -4,7 +4,7 @@ The full Day 0 → MVP sequence, in dependency order. See [docs/startup-checklis
 
 ## 1. GitHub
 
-- [ ] `gh repo create <name> --template caliendohomes-rgb/business-architecture-playbook --private --clone`
+- [ ] `gh repo create <name> --template recaliendo/business-cyber.resilience-architecture-playbook --private --clone`
 - [ ] Work through [repository-checklist.md](repository-checklist.md) in full
 
 ## 2. Netlify

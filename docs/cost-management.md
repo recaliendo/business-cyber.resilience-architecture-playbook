@@ -1,5 +1,7 @@
 # Cost Management
 
+> **Prices and plan limits on this page are dated illustrations, recorded before November 2026 and not re-verified.** Vendors change free tiers, limits and prices often. Check each vendor's current pricing page before deciding anything. The consultant never builds in prices: `bcr forecast` uses only unit prices you supply with a source date, and reports cost ranges, not quotes.
+
 ## Day 0 / MVP — should cost close to $0
 
 | Vendor | Free tier covers |
@@ -29,7 +31,7 @@ A new business should be able to run production for months on free tiers alone, 
 
 ## Vendor lock-in awareness
 
-None of the defaults here are hard to leave:
+None of the defaults here are hard to leave, though each move still takes real work. Test an export before you depend on it:
 
 - **Supabase** — it's real Postgres; `pg_dump` gets your data and schema out. Auth is the harder migration (users, sessions) but Supabase supports exporting auth users.
 - **Netlify** — static builds and standard serverless function signatures port to most competitors with config changes, not a rewrite.

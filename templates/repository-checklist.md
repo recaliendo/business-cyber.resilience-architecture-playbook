@@ -4,7 +4,7 @@ Run through this when creating a new repo for a new venture (from this template)
 
 ## Creation
 
-- [ ] `gh repo create <name> --template caliendohomes-rgb/business-architecture-playbook --private --clone`
+- [ ] `gh repo create <name> --template recaliendo/business-cyber.resilience-architecture-playbook --private --clone`
 - [ ] Rename/replace this playbook's docs with the new project's actual `README.md` (keep `docs/`, `vendors/`, `architecture/`, `templates/` if you want the reference material to travel with the repo — or delete them once you've internalized the setup and just keep your own project docs)
 - [ ] Set default branch to `main`
 
