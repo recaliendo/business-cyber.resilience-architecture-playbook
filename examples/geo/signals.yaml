@@ -1,0 +1,13 @@
+# SYNTHETIC aggregate signals from your own WAF and auth logs (counts per country per window).
+# Evaluated with --now 2026-11-14T12:00:00Z in the demo.
+signals:
+  # Credential stuffing well above baseline, enough samples, fresh -> CHALLENGE proposal (web only)
+  - { country: QZ, windowStart: "2026-11-14T08:00:00Z", windowEnd: "2026-11-14T11:00:00Z", totalRequests: 52000, maliciousRequests: 9400, loginAttempts: 6100, failedLogins: 3900, baselineFailedLoginRate: 0.08, baselineComputedAt: "2026-11-07T00:00:00Z", source: waf+auth-logs, clients: [web, ios] }
+  # EU member state, B2C: elevated but the guardrail allows CHALLENGE/MONITOR only, never BLOCK
+  - { country: DE, windowStart: "2026-11-14T08:00:00Z", windowEnd: "2026-11-14T11:00:00Z", totalRequests: 88000, maliciousRequests: 19000, loginAttempts: 9000, failedLogins: 1300, baselineFailedLoginRate: 0.1, baselineComputedAt: "2026-11-07T00:00:00Z", source: waf+auth-logs, clients: [web] }
+  # Small sample: must not escalate however bad the ratio looks
+  - { country: QY, windowStart: "2026-11-14T08:00:00Z", windowEnd: "2026-11-14T11:00:00Z", totalRequests: 140, maliciousRequests: 120, loginAttempts: 30, failedLogins: 29, baselineFailedLoginRate: 0.05, baselineComputedAt: "2026-11-07T00:00:00Z", source: waf+auth-logs, clients: [web] }
+  # API-only abuse: browser challenges do not apply -> human review + rate-limit advice
+  - { country: QX, windowStart: "2026-11-14T08:00:00Z", windowEnd: "2026-11-14T11:00:00Z", totalRequests: 30000, maliciousRequests: 12000, loginAttempts: 4000, failedLogins: 2600, baselineFailedLoginRate: 0.1, baselineComputedAt: "2026-11-07T00:00:00Z", source: waf+auth-logs, clients: [api] }
+  # Stale signal: ignored
+  - { country: QW, windowStart: "2026-11-10T08:00:00Z", windowEnd: "2026-11-10T11:00:00Z", totalRequests: 40000, maliciousRequests: 20000, loginAttempts: 5000, failedLogins: 4000, baselineFailedLoginRate: 0.1, baselineComputedAt: "2026-11-07T00:00:00Z", source: waf+auth-logs, clients: [web] }

@@ -1,0 +1,35 @@
+# Business and workload intake for `bcr assess`. Copy to assessments/<name>/intake.yaml (gitignored).
+# Every field except business.name, business.stage and business.team.size is optional.
+# Leave anything you don't know out, or answer "unknown": the report will mark it unknown
+# instead of guessing. Never paste secrets or raw customer data here.
+# Schema: schemas/intake.schema.json
+schemaVersion: 1
+business:
+  name: Your company
+  # The three questions the consultant asks first:
+  model: unknown                       # b2c | b2b | hybrid
+  enterpriseDealsInPipeline: unknown   # yes | no | unknown
+  securityQuestionnairesReceived: unknown
+  dataClasses: []                      # personal, contact, health, children, education, financial, payment_card, ...
+  processingPurposes: []               # what you do with the data, in plain words
+  establishment: { countries: [] }     # ISO 3166-1 codes where the business is established, e.g. [US]
+  targetMarkets: []                    # countries you market to or serve, e.g. [US, GB, DE]
+  dataLocations: []                    # regions where data is stored, e.g. [us-east-1]
+  # Stage and capacity to act:
+  stage: launch                        # prelaunch | launch | early_production | growth | enterprise_global
+  team: { size: 1 }
+  # Legal relationships (these drive sector laws, not the data labels):
+  sector: { hipaaRole: unknown, ferpaRole: unknown, glbaFinancialInstitution: unknown }
+  children: { directedToChildren: unknown, likelyAccessedByChildren: unknown, actualKnowledgeOfUnder13: unknown }
+  surfaces: { ios: false, web: true }
+  payments: { method: unknown }        # stripe_hosted_checkout | stripe_elements | apple_iap | custom_card_form | none
+  ai: { usesAi: unknown }
+# workload:                            # add when you want a capacity forecast
+#   peakConcurrentActiveUsers: 100      # users making requests in the same minute (not MAU)
+#   requestsPerActiveUserPerMinute: 5
+#   requestMix:
+#     - { name: main, share: 1, avgDurationMs: 200, dbQueriesPerRequest: 3, avgDbQueryMs: 5 }
+#   storage: { databaseGb: 1, databaseGrowthGbPerMonth: 0.2, backupRetentionDays: 7 }
+#   limits: { computeConcurrency: 100, dbMaxConnections: 60, dbQuotaGb: 8 }
+# infrastructure: { components: [] }   # see examples/intake/02-b2b-enterprise.yaml
+# evidence: []                         # see templates/consultant/evidence-register.md

@@ -1,0 +1,62 @@
+# CI for the consultant and playbook. Runs on pull_request (fork PRs get a read-only token and no
+# secrets) and on pushes to main. No job executes with write permissions or repository secrets.
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: Typecheck, lint, test, validate (Node ${{ matrix.node }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node: ["22.x", "lts/*"]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+      - name: Install (lockfile only, no lifecycle scripts)
+        run: npm ci --ignore-scripts
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Lint
+        run: npm run lint
+      - name: Test (offline acceptance suite)
+        run: npm test
+      - name: Validate knowledge, examples, policy approvals and internal links
+        run: node dist/scripts/validate-repo.js
+      - name: Generated schemas are up to date
+        run: |
+          node dist/scripts/generate-schemas.js
+          git diff --exit-code -- schemas/ || { echo "::error::schemas/ is stale. Run npm run schemas and commit."; exit 1; }
+      - name: Clean-checkout demo runs without credentials
+        run: node dist/scripts/demo.js
+
+  dependency-review:
+    name: Dependency review
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/dependency-review-action@a1d282b36b6f3519aa1f3fc636f609c47dddb294 # v5.0.0
+        with:
+          fail-on-severity: high
+          # Advisory exceptions are governed in security/advisory-exceptions.yaml (each needs an owner,
+          # reason and expiry). Add GHSA ids here only when they are recorded there.

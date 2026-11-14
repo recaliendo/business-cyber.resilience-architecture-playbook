@@ -1,0 +1,24 @@
+# SYNTHETIC EXAMPLE 4: a study-wellbeing app handling health and education data.
+# Legal roles are deliberately unresolved: the consultant must screen, not conclude.
+schemaVersion: 1
+assessedAt: "2026-11-14T12:00:00Z"
+business:
+  name: CalmCampus (synthetic)
+  model: hybrid
+  enterpriseDealsInPipeline: "yes"
+  securityQuestionnairesReceived: "unknown"
+  stage: prelaunch
+  team: { size: 2 }
+  establishment: { countries: [US] }
+  targetMarkets: [US]
+  dataLocations: [us-west-2]
+  dataClasses: [personal, contact, health, education, children]
+  processingPurposes: [mood journaling, sharing summaries with school counsellors]
+  surfaces: { ios: true, web: true }
+  sector: { hipaaRole: unknown, ferpaRole: unknown, glbaFinancialInstitution: "no" }
+  children: { directedToChildren: "unknown", likelyAccessedByChildren: "yes", actualKnowledgeOfUnder13: "unknown" }
+  privacy: { role: unknown, offersToEuIndividuals: "no", monitorsEuBehaviour: "no", offersToUkIndividuals: "no", monitorsUkBehaviour: "no", processesInBrazilOrOffersToBrazil: "no" }
+  ios: { supportsAccountCreation: "yes", tracksPerAttDefinition: "no", usesRequiredReasonApis: "unknown" }
+  payments: { method: none }
+  ai: { usesAi: "yes", role: deployer, usersInteractWithAiSystem: "yes", generatesSyntheticContent: "yes", possibleHighRiskUseCase: "unknown", outputUsedInEu: "no" }
+  accessibility: { offersEaaCoveredServicesInEu: "no", usPublicFacingService: "yes" }

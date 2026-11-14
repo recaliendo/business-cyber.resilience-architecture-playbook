@@ -1,0 +1,409 @@
+# Security control catalog. Versioned: bump `version` on any change (reports record it).
+# informationalMappings are high-level pointers for orientation only. They are NOT authoritative
+# audit determinations and do not reproduce AICPA or ISO text.
+# Time figures such as "critical within 7 days" and "12 months of logs" are example baselines,
+# not universal SOC 2 rules. Set your own in policy and keep to it.
+version: "1.0.0"
+controls:
+  # ---------- 1. Identity and access ----------
+  - id: IAM-01
+    title: MFA on every critical account
+    domain: identity_access
+    description: Multi-factor authentication on cloud/hosting, GitHub, domain registrar, email, Apple Developer, Stripe and every other critical vendor. Prefer passkeys or hardware keys over SMS.
+    minStage: prelaunch
+    weight: 5
+    severityIfUnmet: critical
+    blockerIfUnmet: true
+    quickWin: true
+    effortHours: { low: 1, high: 3 }
+    costUsd: { low: 0, high: 120 }
+    ownerRole: Founder
+    evidenceRequired: [Per-vendor screenshot or export showing MFA enforced, List of critical accounts covered]
+    evidenceMaxAgeDays: 100
+    remediation: Turn on MFA for each critical account, enforce it organisation-wide where the vendor allows, and store recovery codes in the password manager.
+    validation: Every account in the access register shows MFA enabled, with a dated screenshot or export.
+    informationalMappings: { soc2Tsc: [CC6.1], iso27001Annex: [A.5.17, A.8.5] }
+  - id: IAM-02
+    title: Password manager, no shared accounts
+    domain: identity_access
+    description: Unique credentials stored in a password manager. Each person has their own login; no shared root accounts.
+    minStage: prelaunch
+    weight: 3
+    severityIfUnmet: high
+    quickWin: true
+    effortHours: { low: 1, high: 4 }
+    costUsd: { low: 0, high: 10 }
+    ownerRole: Founder
+    evidenceRequired: [Password manager in use, Access register listing one named user per account]
+    evidenceMaxAgeDays: 190
+    soloFounderAlternative: With one person there is nothing to share; keep the access register so a second person can be added cleanly.
+    remediation: Adopt a password manager, replace shared logins with named users, and record them in the access register template.
+    validation: Access register has no shared logins.
+    informationalMappings: { soc2Tsc: [CC6.1, CC6.2], iso27001Annex: [A.5.16, A.5.17] }
+  - id: IAM-03
+    title: Least privilege and separate privileged accounts
+    domain: identity_access
+    description: Roles grant the minimum needed. Admin or owner roles are separate from daily-use accounts where the vendor supports it.
+    minStage: early_production
+    weight: 3
+    severityIfUnmet: medium
+    effortHours: { low: 2, high: 8 }
+    ownerRole: Founder
+    evidenceRequired: [Role listing per vendor, Justification for each admin]
+    evidenceMaxAgeDays: 100
+    soloFounderAlternative: A solo founder is necessarily the admin. Use a separate non-admin account for daily work where the vendor allows, and document the exception.
+    remediation: Review roles on each vendor, remove unused admin rights, and document who holds each privileged role and why.
+    validation: Quarterly access review record.
+    informationalMappings: { soc2Tsc: [CC6.2, CC6.3], iso27001Annex: [A.5.15, A.8.2] }
+  - id: IAM-04
+    title: Access lifecycle (grant, review, revoke)
+    domain: identity_access
+    description: Access is granted on request, reviewed on a schedule, and removed promptly when a person or contractor leaves.
+    minStage: early_production
+    weight: 3
+    severityIfUnmet: medium
+    effortHours: { low: 1, high: 4 }
+    ownerRole: Founder
+    evidenceRequired: [Access review record, Offboarding checklist for the last leaver if any]
+    evidenceMaxAgeDays: 100
+    remediation: Run a quarterly access review using the access register template; add an offboarding checklist.
+    validation: Dated access review with changes made.
+    informationalMappings: { soc2Tsc: [CC6.2, CC6.3], iso27001Annex: [A.5.18] }
+  - id: IAM-05
+    title: Secure account recovery
+    domain: identity_access
+    description: Recovery email, phone and codes for critical accounts are themselves protected, and recovery does not depend on a single device.
+    minStage: launch
+    weight: 2
+    severityIfUnmet: medium
+    effortHours: { low: 1, high: 2 }
+    ownerRole: Founder
+    evidenceRequired: [Recovery methods listed per critical account]
+    evidenceMaxAgeDays: 370
+    remediation: Record recovery methods per account, store codes in the password manager, and register a second security key.
+    validation: Recovery test on one non-production account.
+    informationalMappings: { soc2Tsc: [CC6.1], iso27001Annex: [A.5.17] }
+  - id: IAM-06
+    title: Secrets in a secrets manager, none in code
+    domain: identity_access
+    description: API keys and credentials live in the platform's secret store or a secrets manager. None are committed to source control.
+    minStage: prelaunch
+    weight: 5
+    severityIfUnmet: critical
+    blockerIfUnmet: true
+    quickWin: true
+    effortHours: { low: 1, high: 4 }
+    ownerRole: Engineering lead
+    evidenceRequired: [Secret scan of full git history with redacted output, Listing of secret names (not values) in the platform]
+    evidenceMaxAgeDays: 35
+    remediation: Move secrets to environment or secret storage, run a full-history secret scan, and rotate anything that was ever committed.
+    validation: Secret-scanning CI job passing on the default branch.
+    informationalMappings: { soc2Tsc: [CC6.1, CC6.7], iso27001Annex: [A.8.24, A.5.17] }
+
+  # ---------- 2. Change management ----------
+  - id: CHG-01
+    title: Pull-request changes with a protected main branch
+    domain: change_management
+    description: Changes reach the default branch through pull requests. The branch is protected against force-push and deletion and requires CI.
+    minStage: prelaunch
+    weight: 4
+    severityIfUnmet: high
+    quickWin: true
+    effortHours: { low: 1, high: 2 }
+    ownerRole: Engineering lead
+    evidenceRequired: [Branch protection settings export]
+    evidenceMaxAgeDays: 100
+    soloFounderAlternative: A solo developer cannot get an independent review. Use a documented self-review checklist on each pull request plus required automated checks, and disclose this as a compensating control. Whether an auditor or buyer accepts it is their decision.
+    remediation: Enable branch protection on the default branch with required status checks; turn on required reviews once a second person has write access.
+    validation: Branch protection API export shows required checks and no force pushes.
+    informationalMappings: { soc2Tsc: [CC8.1], iso27001Annex: [A.8.32] }
+  - id: CHG-02
+    title: Required CI on every change
+    domain: change_management
+    description: Build, type checks, tests and security scans run automatically and must pass before merge.
+    minStage: launch
+    weight: 3
+    severityIfUnmet: medium
+    effortHours: { low: 2, high: 8 }
+    ownerRole: Engineering lead
+    evidenceRequired: [CI workflow file, Recent passing run]
+    evidenceMaxAgeDays: 35
+    remediation: Add a CI workflow (see templates/config/github-workflows-ci.yml) and mark its jobs as required checks.
+    validation: A failing check blocks merge.
+    dependsOn: [CHG-01]
+    informationalMappings: { soc2Tsc: [CC8.1], iso27001Annex: [A.8.25, A.8.29] }
+  - id: CHG-03
+    title: Environment separation with synthetic non-production data
+    domain: change_management
+    description: Production is separate from staging and previews (projects, keys, payment modes). Non-production uses synthetic or sanitized data. Restore tests that involve production data need explicit authorization, restricted access, isolation, a retention limit and cleanup.
+    minStage: launch
+    weight: 4
+    severityIfUnmet: high
+    effortHours: { low: 3, high: 12 }
+    costUsd: { low: 0, high: 50 }
+    ownerRole: Engineering lead
+    evidenceRequired: [Environment-to-credential map, Proof previews use non-production credentials]
+    evidenceMaxAgeDays: 190
+    remediation: Follow docs/environments.md; record the restore-test exception process in the backup policy.
+    validation: Preview deploy cannot read production data.
+    informationalMappings: { soc2Tsc: [CC8.1], iso27001Annex: [A.8.31, A.8.33] }
+  - id: CHG-04
+    title: Infrastructure and configuration as code
+    domain: change_management
+    description: Hosting configuration, database schema and policies are versioned files applied through the same reviewed pipeline.
+    minStage: early_production
+    weight: 2
+    severityIfUnmet: low
+    effortHours: { low: 4, high: 24 }
+    ownerRole: Engineering lead
+    evidenceRequired: [Config and migration files in the repository]
+    evidenceMaxAgeDays: 190
+    remediation: Keep hosting config and database migrations in the repository; avoid dashboard-only changes.
+    validation: A fresh environment can be built from the repository.
+    informationalMappings: { soc2Tsc: [CC8.1], iso27001Annex: [A.8.9] }
+
+  # ---------- 3. Logs, monitoring, vulnerabilities ----------
+  - id: LOG-01
+    title: Audit logs enabled and retained
+    domain: logging_monitoring
+    description: Audit logs are on for cloud, source control and identity systems, retained for a set period (12 months is a common baseline where proportionate), access-controlled, tamper-resistant, and minimised for personal data. Review the cost.
+    minStage: launch
+    weight: 4
+    severityIfUnmet: high
+    quickWin: true
+    effortHours: { low: 1, high: 6 }
+    costUsd: { low: 0, high: 100 }
+    ownerRole: Engineering lead
+    evidenceRequired: [Audit log settings per vendor, Stated retention period]
+    evidenceMaxAgeDays: 190
+    soloFounderAlternative: Many vendors keep audit logs for a shorter period on low tiers. Record the actual retention and export logs periodically if 12 months is needed.
+    remediation: Enable audit logging on each critical vendor, record the retention period, and restrict who can read or delete logs.
+    validation: Sample audit log entry retrieved for a known action.
+    informationalMappings: { soc2Tsc: [CC7.2], iso27001Annex: [A.8.15] }
+  - id: LOG-02
+    title: Uptime and error alerts with an owner
+    domain: logging_monitoring
+    description: External uptime checks and error tracking alert a named person, and alerts are actionable.
+    minStage: launch
+    weight: 3
+    severityIfUnmet: medium
+    effortHours: { low: 1, high: 4 }
+    costUsd: { low: 0, high: 30 }
+    ownerRole: Engineering lead
+    evidenceRequired: [Monitor configuration, A received test alert]
+    evidenceMaxAgeDays: 100
+    remediation: Add an uptime monitor on a critical journey and route error-tracker alerts to a watched channel.
+    validation: Test alert received.
+    informationalMappings: { soc2Tsc: [CC7.2, A1.2], iso27001Annex: [A.8.16] }
+  - id: VUL-01
+    title: Dependency scanning and updates
+    domain: vulnerability_management
+    description: Automated dependency vulnerability alerts and update pull requests, reviewed on a regular cadence.
+    minStage: prelaunch
+    weight: 4
+    severityIfUnmet: high
+    quickWin: true
+    effortHours: { low: 1, high: 2 }
+    ownerRole: Engineering lead
+    evidenceRequired: [Dependabot or equivalent configuration, Open alert list]
+    evidenceMaxAgeDays: 35
+    remediation: Enable Dependabot alerts and version updates (see templates/config/dependabot.yml).
+    validation: Alerts page shows scanning active.
+    informationalMappings: { soc2Tsc: [CC7.1], iso27001Annex: [A.8.8] }
+  - id: VUL-02
+    title: Secret scanning with redacted output
+    domain: vulnerability_management
+    description: A maintained secret scanner runs on every change and over full history, and never prints the secret it finds.
+    minStage: prelaunch
+    weight: 4
+    severityIfUnmet: high
+    quickWin: true
+    effortHours: { low: 1, high: 2 }
+    ownerRole: Engineering lead
+    evidenceRequired: [Scanner workflow, Push-protection setting]
+    evidenceMaxAgeDays: 35
+    remediation: Enable platform secret scanning and push protection, and run gitleaks with --redact in CI.
+    validation: Passing scan on the default branch.
+    informationalMappings: { soc2Tsc: [CC7.1, CC6.7], iso27001Annex: [A.8.8] }
+  - id: VUL-03
+    title: Written vulnerability remediation targets
+    domain: vulnerability_management
+    description: A written target per severity. An example is critical within 7 days, faster when actively exploited, with documented exceptions.
+    minStage: early_production
+    weight: 2
+    severityIfUnmet: medium
+    effortHours: { low: 1, high: 3 }
+    ownerRole: Founder
+    evidenceRequired: [Policy stating targets, Record of remediation times for recent criticals]
+    evidenceMaxAgeDays: 370
+    remediation: Add targets to the information security policy template and track critical alerts against them.
+    validation: Last three critical alerts closed within target or with a recorded exception.
+    informationalMappings: { soc2Tsc: [CC7.1], iso27001Annex: [A.8.8] }
+  - id: VUL-04
+    title: Container or image scanning where applicable
+    domain: vulnerability_management
+    description: If you build container images, scan them. Mark not applicable, with a reason, if you ship none.
+    minStage: early_production
+    weight: 1
+    severityIfUnmet: low
+    effortHours: { low: 1, high: 4 }
+    ownerRole: Engineering lead
+    evidenceRequired: [Scan results, or a statement that no images are built]
+    evidenceMaxAgeDays: 100
+    remediation: Add an image scanner to CI, or record why this does not apply.
+    validation: Scan report or justification.
+    informationalMappings: { soc2Tsc: [CC7.1], iso27001Annex: [A.8.8] }
+
+  # ---------- 4. Data protection and resilience ----------
+  - id: DAT-01
+    title: Encryption in transit and at rest
+    domain: data_protection
+    description: TLS for all traffic including database connections; provider-managed encryption at rest for databases, storage and backups.
+    minStage: prelaunch
+    weight: 4
+    severityIfUnmet: high
+    effortHours: { low: 1, high: 4 }
+    ownerRole: Engineering lead
+    evidenceRequired: [Provider encryption settings, HTTPS enforcement check]
+    evidenceMaxAgeDays: 370
+    remediation: Force HTTPS with HSTS, require TLS on database connections, and confirm provider encryption at rest.
+    validation: Plain HTTP redirects; settings export.
+    informationalMappings: { soc2Tsc: [CC6.1, CC6.7], iso27001Annex: [A.8.24] }
+  - id: DAT-02
+    title: Data inventory and classification
+    domain: data_protection
+    description: A list of what personal and sensitive data you hold, where, why, and who processes it.
+    minStage: prelaunch
+    weight: 4
+    severityIfUnmet: high
+    effortHours: { low: 2, high: 6 }
+    ownerRole: Founder
+    evidenceRequired: [Completed data inventory]
+    evidenceMaxAgeDays: 370
+    remediation: Fill in templates/consultant/data-vendor-inventory.yaml.
+    validation: Inventory covers every table and bucket that stores customer data.
+    informationalMappings: { soc2Tsc: [CC6.1, C1.1], iso27001Annex: [A.5.9, A.5.12] }
+  - id: DAT-03
+    title: Retention and deletion
+    domain: data_protection
+    description: Stated retention per dataset, a working deletion process (including backups and processors), and account deletion where offered.
+    minStage: launch
+    weight: 3
+    severityIfUnmet: medium
+    effortHours: { low: 3, high: 16 }
+    ownerRole: Engineering lead
+    evidenceRequired: [Retention schedule, A completed deletion request]
+    evidenceMaxAgeDays: 370
+    remediation: Define retention per dataset, implement deletion end to end, and test it with a synthetic account.
+    validation: Deleted test account is gone from primary stores and expires from backups within the stated window.
+    informationalMappings: { soc2Tsc: [C1.2, P4.2], iso27001Annex: [A.8.10] }
+  - id: RES-01
+    title: Automated backups for database and uploaded objects
+    domain: resilience
+    description: Automated backups cover the database and, separately, uploaded files. Database backups usually do not include object storage.
+    minStage: launch
+    weight: 5
+    severityIfUnmet: critical
+    blockerIfUnmet: true
+    effortHours: { low: 1, high: 6 }
+    costUsd: { low: 0, high: 60 }
+    ownerRole: Engineering lead
+    evidenceRequired: [Backup configuration, Date of latest successful backup, Object storage backup or versioning setting]
+    evidenceMaxAgeDays: 100
+    remediation: Enable automated database backups and object versioning or a second-location copy.
+    validation: Latest backup timestamp within the RPO.
+    informationalMappings: { soc2Tsc: [A1.2], iso27001Annex: [A.8.13] }
+  - id: RES-02
+    title: Documented restore test with measured RTO and RPO
+    domain: resilience
+    description: A restore has been performed into an isolated environment, with duration (RTO) and data loss window (RPO) measured and recorded.
+    minStage: launch
+    weight: 4
+    severityIfUnmet: high
+    effortHours: { low: 2, high: 8 }
+    ownerRole: Engineering lead
+    evidenceRequired: [Dated restore exercise record with measured times and integrity check]
+    evidenceMaxAgeDays: 190
+    remediation: Run templates/consultant/backup-restore-exercise.md.
+    validation: Restore record less than six months old.
+    dependsOn: [RES-01]
+    informationalMappings: { soc2Tsc: [A1.3], iso27001Annex: [A.8.13, A.5.30] }
+
+  # ---------- 5. Vendors ----------
+  - id: VEN-01
+    title: Vendor inventory with DPAs and assurance reports
+    domain: vendor_management
+    description: Every customer-data processor and critical dependency is listed with its DPA, subprocessors, regions, assurance report (scope, period, exceptions, bridge letter where relevant) and the responsibilities left to you. A vendor's certification does not make your business compliant.
+    minStage: launch
+    weight: 4
+    severityIfUnmet: high
+    effortHours: { low: 3, high: 8 }
+    ownerRole: Founder
+    evidenceRequired: [Completed vendor inventory, Signed or accepted DPAs]
+    evidenceMaxAgeDays: 370
+    remediation: Fill in the vendor section of the data and vendor inventory and file each DPA.
+    validation: Every vendor that touches customer data has a DPA on file.
+    informationalMappings: { soc2Tsc: [CC9.2], iso27001Annex: [A.5.19, A.5.20] }
+
+  # ---------- 6. Policies ----------
+  - id: POL-01
+    title: Short written policies that match practice
+    domain: policy
+    description: Information security, access control, incident response, backup and disaster recovery, and vendor management policies, about two pages each, reviewed yearly and on material change. A policy that does not match practice is worse than none.
+    minStage: early_production
+    weight: 3
+    severityIfUnmet: medium
+    effortHours: { low: 4, high: 12 }
+    ownerRole: Founder
+    evidenceRequired: [Dated policies with an owner and review date]
+    evidenceMaxAgeDays: 370
+    remediation: Adapt templates/consultant/policies/ to what you actually do.
+    validation: Each policy has an owner, a date within 12 months, and matches observed practice.
+    informationalMappings: { soc2Tsc: [CC1.4, CC5.3], iso27001Annex: [A.5.1] }
+  - id: POL-02
+    title: Incident response runbook
+    domain: policy
+    description: A written runbook covering identify, contain, communicate, fix and record, with a breach-notification decision step.
+    minStage: launch
+    weight: 3
+    severityIfUnmet: medium
+    effortHours: { low: 2, high: 4 }
+    ownerRole: Founder
+    evidenceRequired: [Runbook, Record of a tabletop walk-through or real incident]
+    evidenceMaxAgeDays: 370
+    remediation: Adapt templates/consultant/incident-runbook.md.
+    validation: Tabletop exercise note.
+    informationalMappings: { soc2Tsc: [CC7.3, CC7.4], iso27001Annex: [A.5.24, A.5.26] }
+
+  # ---------- 7. Endpoints ----------
+  - id: END-01
+    title: Secured work devices
+    domain: endpoint
+    description: Disk encryption, automatic updates, screen lock, firewall, a supported operating system and appropriate malware protection on every device with production or source access, listed in a device inventory.
+    minStage: prelaunch
+    weight: 3
+    severityIfUnmet: medium
+    effortHours: { low: 1, high: 3 }
+    ownerRole: Founder
+    evidenceRequired: [Device inventory with settings per device]
+    evidenceMaxAgeDays: 190
+    remediation: Check each setting on each device and record it in the access register's device section.
+    validation: Screenshot of disk encryption and update status per device.
+    informationalMappings: { soc2Tsc: [CC6.7, CC6.8], iso27001Annex: [A.8.1, A.8.7] }
+
+  # ---------- 8. Evidence ----------
+  - id: EVD-01
+    title: Recurring, timestamped evidence
+    domain: evidence
+    description: Evidence for access reviews, MFA, restores, vulnerability remediation, changes and policy reviews is collected on a schedule. Quarterly is a starting cadence; some controls need more frequent or continuous evidence.
+    minStage: early_production
+    weight: 3
+    severityIfUnmet: medium
+    effortHours: { low: 2, high: 6 }
+    ownerRole: Founder
+    evidenceRequired: [Evidence register with dated entries for the last period]
+    evidenceMaxAgeDays: 100
+    soloFounderAlternative: A calendar reminder and the evidence register template are enough until audit demand justifies a paid platform such as Vanta, Drata, Secureframe or Comp AI.
+    remediation: Start the evidence register template and schedule a quarterly collection.
+    validation: Register has entries for the current quarter.
+    informationalMappings: { soc2Tsc: [CC4.1], iso27001Annex: [A.5.35, A.5.36] }

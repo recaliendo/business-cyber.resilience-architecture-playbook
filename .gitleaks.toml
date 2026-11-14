@@ -1,0 +1,7 @@
+# Extend gitleaks' default rules; allow the deliberately insecure synthetic fixtures used by tests.
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Synthetic test fixtures"
+paths = ['''examples/repos/''', '''tests/fixtures/''', '''tests/e2e-and-safety.test.ts''']

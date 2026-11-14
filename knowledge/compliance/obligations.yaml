@@ -1,0 +1,332 @@
+# Obligation catalog. Versioned: bump `version` on any change.
+# Categories: legal (statute/regulation), platform (e.g. Apple), contractual (e.g. PCI DSS),
+# voluntary (market-driven attestations). The applicability LOGIC for each id lives in
+# src/engines/compliance/applicability.ts and is tested; this file holds the reviewed wording.
+# Nothing here is legal advice. Every "applicable" or "uncertain" result should be confirmed
+# with counsel where counselReview is true.
+version: "1.0.0"
+obligations:
+  - id: OB-GDPR
+    title: EU GDPR
+    category: legal
+    jurisdiction: EU/EEA
+    ruleCategory: privacy
+    summary: Rules for processing personal data of people in the EU/EEA.
+    applicabilityConditions: Established in the EU/EEA, or offering goods/services to, or monitoring the behaviour of, people in the EU/EEA (Article 3). A user merely being located in the EU is not by itself the test.
+    exceptions: Purely personal or household activity; no personal data processed.
+    effectiveDates: In force since 2018-05-25.
+    sourceIds: [SRC-GDPR, SRC-EDPB-TERRITORIAL]
+    requiredEvidence: [Data map / record of processing, Privacy notice, Lawful basis per purpose, DPAs with processors, Data-subject request workflow, Breach response process, Transfer mechanism where data leaves the EEA]
+    remediation: Complete the data inventory, publish an accurate privacy notice, sign DPAs, set up a request workflow, and document transfer mechanisms.
+    counselReview: true
+    launchBlockerIfApplicable: true
+    relatedControls: [DAT-02, DAT-03, VEN-01, POL-02]
+  - id: OB-GDPR-ART27
+    title: EU representative (GDPR Article 27)
+    category: legal
+    jurisdiction: EU/EEA
+    ruleCategory: privacy
+    summary: Organisations outside the EU that are subject to GDPR through targeting or monitoring must usually appoint an EU representative.
+    applicabilityConditions: GDPR applies under Article 3(2) and there is no EU establishment.
+    exceptions: Processing that is occasional, does not include large-scale special-category or criminal data, and is unlikely to result in a risk; public authorities.
+    sourceIds: [SRC-GDPR, SRC-EDPB-TERRITORIAL]
+    requiredEvidence: [Representative appointment, or documented reliance on the exception]
+    remediation: Appoint a representative in a member state where your users are, or document why the exception applies.
+    counselReview: true
+    relatedControls: []
+  - id: OB-UK-GDPR
+    title: UK GDPR and Data Protection Act 2018
+    category: legal
+    jurisdiction: UK
+    ruleCategory: privacy
+    summary: UK data protection regime, similar in structure to the EU GDPR but separate.
+    applicabilityConditions: Established in the UK, or offering goods/services to, or monitoring, people in the UK.
+    exceptions: No personal data processed.
+    sourceIds: [SRC-ICO-UKGDPR]
+    requiredEvidence: [Same artefacts as GDPR, with UK transfer mechanism where relevant, ICO registration/fee where required]
+    remediation: Extend the GDPR programme to the UK and check ICO registration.
+    counselReview: true
+    launchBlockerIfApplicable: true
+    relatedControls: [DAT-02, DAT-03, VEN-01]
+  - id: OB-UK-REP
+    title: UK representative (UK GDPR Article 27)
+    category: legal
+    jurisdiction: UK
+    ruleCategory: privacy
+    summary: A separate requirement from the EU representative, for organisations outside the UK that are subject to UK GDPR.
+    applicabilityConditions: UK GDPR applies through targeting or monitoring and there is no UK establishment.
+    exceptions: Mirrors the EU exception; UK law in this area has been subject to reform, so confirm the current position.
+    sourceIds: [SRC-ICO-UKGDPR]
+    requiredEvidence: [Representative appointment, or documented reliance on an exception]
+    remediation: Assess separately from the EU representative; an EU representative does not cover the UK.
+    counselReview: true
+  - id: OB-CCPA
+    title: California CCPA/CPRA
+    category: legal
+    jurisdiction: US-CA
+    ruleCategory: privacy
+    summary: Privacy rights for California residents, applying to for-profit businesses that meet a threshold.
+    applicabilityConditions: Does business in California and meets at least one threshold (annual gross revenue above the CPI-adjusted figure; personal information of 100,000 or more consumers or households; or 50% or more of revenue from selling or sharing personal information).
+    exceptions: Below all thresholds; non-profit; certain data already covered by sector laws. Service providers have contract-based duties.
+    sourceIds: [SRC-CA-CCPA, SRC-CPPA-REGS]
+    requiredEvidence: [Threshold assessment, Privacy policy with required disclosures, Request workflow, Service-provider contract terms]
+    remediation: Record the threshold assessment each year; if in scope, add disclosures, request handling and opt-out of sale/sharing.
+    counselReview: true
+    relatedControls: [DAT-02, DAT-03]
+  - id: OB-US-STATE-PRIVACY
+    title: Other US state privacy laws
+    category: legal
+    jurisdiction: US (state level)
+    ruleCategory: privacy
+    summary: A growing number of states have comprehensive privacy laws, each with its own thresholds and exemptions, plus specific laws such as consumer health data acts.
+    applicabilityConditions: Depends on each state's thresholds (commonly numbers of residents whose data is processed, or revenue share from data sales) and on data type.
+    exceptions: Vary by state.
+    sourceIds: [SRC-US-STATE-TRACKER]
+    requiredEvidence: [Per-state threshold assessment]
+    remediation: Track resident counts per state; reassess when counts approach thresholds or when health or children's data is processed.
+    counselReview: true
+  - id: OB-LGPD
+    title: Brazil LGPD
+    category: legal
+    jurisdiction: BR
+    ruleCategory: privacy
+    summary: Brazil's general data protection law.
+    applicabilityConditions: Processing carried out in Brazil, offering goods/services to people in Brazil, or data collected in Brazil.
+    exceptions: No personal data processed; purely personal use.
+    sourceIds: [SRC-LGPD]
+    requiredEvidence: [Data map, Legal basis, Notice in Portuguese where targeting Brazil, Request workflow]
+    remediation: Extend the privacy programme to Brazil.
+    counselReview: true
+  - id: OB-DPIA
+    title: Data protection impact assessment
+    category: legal
+    jurisdiction: EU/EEA and UK
+    ruleCategory: privacy
+    summary: A documented risk assessment required before processing that is likely to result in a high risk to individuals.
+    applicabilityConditions: GDPR or UK GDPR applies and processing is high-risk (for example large-scale special-category data, systematic monitoring, or children's data at scale).
+    sourceIds: [SRC-GDPR, SRC-ICO-UKGDPR]
+    requiredEvidence: [DPIA document, or screening note concluding none is needed]
+    remediation: Run a DPIA screening; complete a DPIA for any high-risk processing before it starts.
+    counselReview: true
+  - id: OB-APPLE-PRIVACY-LABELS
+    title: App Store privacy labels
+    category: platform
+    jurisdiction: Apple App Store
+    ruleCategory: platform
+    summary: Accurate privacy details for the app and every third-party SDK in it.
+    applicabilityConditions: Any app distributed on the App Store.
+    sourceIds: [SRC-APPLE-PRIVACY-DETAILS, SRC-APPLE-REVIEW]
+    requiredEvidence: [Privacy label answers reconciled against actual data collection, including SDKs]
+    remediation: Derive the labels from the data inventory and SDK list; re-check on every SDK change.
+    counselReview: false
+    launchBlockerIfApplicable: true
+    relatedControls: [DAT-02]
+  - id: OB-APPLE-PRIVACY-MANIFEST
+    title: Privacy manifests and required-reason APIs
+    category: platform
+    jurisdiction: Apple App Store
+    ruleCategory: platform
+    summary: Apps and listed third-party SDKs must declare reasons for certain APIs and include privacy manifests.
+    applicabilityConditions: The app or one of its SDKs uses a required-reason API, or includes an SDK on Apple's list.
+    sourceIds: [SRC-APPLE-PRIVACY-MANIFEST]
+    requiredEvidence: [PrivacyInfo.xcprivacy in the app, Manifests and signatures for listed SDKs]
+    remediation: Add the manifest, declare approved reasons, and update SDKs to versions that ship manifests.
+    counselReview: false
+    launchBlockerIfApplicable: true
+  - id: OB-APPLE-ACCOUNT-DELETION
+    title: In-app account deletion
+    category: platform
+    jurisdiction: Apple App Store
+    ruleCategory: platform
+    summary: Apps that let users create an account must let them start account deletion inside the app.
+    applicabilityConditions: The app supports account creation.
+    sourceIds: [SRC-APPLE-ACCOUNT-DELETION, SRC-APPLE-REVIEW]
+    requiredEvidence: [Working in-app deletion flow, Back-end deletion verified]
+    remediation: Add an in-app deletion entry point wired to the back-end deletion process.
+    counselReview: false
+    launchBlockerIfApplicable: true
+    relatedControls: [DAT-03]
+  - id: OB-APPLE-ATT
+    title: App Tracking Transparency
+    category: platform
+    jurisdiction: Apple App Store
+    ruleCategory: platform
+    summary: Permission prompt required before tracking, as Apple defines tracking.
+    applicabilityConditions: The app, or an SDK in it, links user or device data with data from other companies' apps or sites for advertising, or shares it with data brokers.
+    exceptions: Apple's definition has specific carve-outs (for example on-device linking and certain fraud prevention uses).
+    sourceIds: [SRC-APPLE-ATT]
+    requiredEvidence: [SDK review against Apple's tracking definition, ATT prompt where required]
+    remediation: Review each SDK; add the prompt or remove the tracking.
+    counselReview: false
+    launchBlockerIfApplicable: true
+  - id: OB-APPLE-IAP
+    title: StoreKit / in-app purchase rules
+    category: platform
+    jurisdiction: Apple App Store
+    ruleCategory: platform
+    summary: Rules on how digital goods and subscriptions may be sold in iOS apps.
+    applicabilityConditions: The iOS app sells digital goods, content or subscriptions consumed in the app.
+    exceptions: Physical goods and services; reader and other categories; regional rules that allow alternatives. These change, so check current Apple sources for each storefront.
+    sourceIds: [SRC-APPLE-REVIEW]
+    requiredEvidence: [Purchase-flow review against the current guidelines for each storefront]
+    remediation: Decide per storefront between IAP and any permitted alternative, using current Apple documentation.
+    counselReview: true
+    launchBlockerIfApplicable: true
+  - id: OB-PCI-DSS
+    title: PCI DSS
+    category: contractual
+    jurisdiction: Card brands (via acquirer/processor contract)
+    ruleCategory: payments
+    summary: Industry security standard for anyone who stores, processes or transmits card data, or can affect its security.
+    applicabilityConditions: The business accepts card payments. Scope depends on the integration. Hosted checkout keeps raw card data off your servers and usually gives the smallest scope, but eligibility for a given self-assessment questionnaire depends on the integration, the security of the page that launches payment, and what your acquirer or processor requires.
+    exceptions: Purchases made only through Apple in-app purchase are handled by Apple.
+    sourceIds: [SRC-PCI-SSC, SRC-STRIPE-SECURITY]
+    requiredEvidence: [Integration type documented, Self-assessment questionnaire your processor asks for, Proof that no raw card data reaches your systems or logs]
+    remediation: Prefer hosted checkout or Apple IAP. Confirm the required questionnaire with your processor. Never collect card numbers as evidence.
+    counselReview: false
+    launchBlockerIfApplicable: true
+  - id: OB-COPPA
+    title: US COPPA
+    category: legal
+    jurisdiction: US
+    ruleCategory: children
+    summary: Verifiable parental consent and other duties when collecting personal information online from children under 13.
+    applicabilityConditions: A service with a US nexus that is directed to children under 13, or has actual knowledge it collects personal information from them. Audience, content and marketing all bear on "directed to".
+    exceptions: General-audience services with no actual knowledge; limited exceptions to consent.
+    sourceIds: [SRC-FTC-COPPA]
+    requiredEvidence: [Audience assessment, Age screening design, Parental consent mechanism where required]
+    remediation: Assess whether the service is child-directed or mixed-audience; implement neutral age screening and consent, or exclude under-13s properly.
+    counselReview: true
+    launchBlockerIfApplicable: true
+  - id: OB-GDPR-CHILD-CONSENT
+    title: GDPR children's consent (Article 8)
+    category: legal
+    jurisdiction: EU/EEA and UK
+    ruleCategory: children
+    summary: Where consent is the lawful basis for an online service offered directly to a child, parental authorisation is needed below a national age between 13 and 16.
+    applicabilityConditions: GDPR or UK GDPR applies, the service is offered directly to children, and consent is the lawful basis.
+    exceptions: Other lawful bases; preventive or counselling services.
+    sourceIds: [SRC-GDPR, SRC-ICO-UKGDPR]
+    requiredEvidence: [Age threshold per country served, Parental authorisation flow]
+    remediation: Map the age threshold for each country and implement authorisation where consent is relied on.
+    counselReview: true
+  - id: OB-UK-AADC
+    title: UK Age Appropriate Design Code
+    category: legal
+    jurisdiction: UK
+    ruleCategory: children
+    summary: Design standards for online services likely to be accessed by under-18s in the UK.
+    applicabilityConditions: UK GDPR applies and the service is likely to be accessed by children, whether or not it is aimed at them.
+    sourceIds: [SRC-ICO-AADC]
+    requiredEvidence: [Likely-access assessment, DPIA covering children, High-privacy defaults]
+    remediation: Document the likely-access assessment; apply the code's standards if children are likely users.
+    counselReview: true
+  - id: OB-EAA
+    title: European Accessibility Act
+    category: legal
+    jurisdiction: EU (national implementations)
+    ruleCategory: accessibility
+    summary: Accessibility requirements for certain consumer products and services, including e-commerce and consumer banking services.
+    applicabilityConditions: Offering a covered product or service to consumers in the EU. Applied through each member state's law.
+    exceptions: Microenterprises providing services are exempt from the service requirements; disproportionate-burden and fundamental-alteration defences; transition periods.
+    effectiveDates: Applies from 2025-06-28, with transition periods for some existing services and contracts.
+    sourceIds: [SRC-EAA, SRC-WCAG22]
+    requiredEvidence: [Scope assessment, Accessibility audit against the applicable standard, Accessibility statement]
+    remediation: Confirm scope and microenterprise status; target WCAG 2.1 AA as a baseline and evaluate WCAG 2.2 AA. A checklist score is not legal compliance.
+    counselReview: true
+  - id: OB-ADA
+    title: US ADA accessibility exposure
+    category: legal
+    jurisdiction: US
+    ruleCategory: accessibility
+    summary: US businesses open to the public face claims that inaccessible websites and apps discriminate against people with disabilities.
+    applicabilityConditions: A public-facing service offered in the US. How the ADA applies to online-only businesses varies between courts.
+    sourceIds: [SRC-ADA-WEB, SRC-WCAG22]
+    requiredEvidence: [Accessibility testing record, Remediation backlog]
+    remediation: Test critical journeys against WCAG 2.1 AA and fix blockers.
+    counselReview: true
+  - id: OB-EU-AI-ACT
+    title: EU AI Act
+    category: legal
+    jurisdiction: EU
+    ruleCategory: ai
+    summary: Risk-based rules for AI systems, with duties that depend on your role and the use case.
+    applicabilityConditions: Placing an AI system on the EU market, deploying one in the EU, or the system's output being used in the EU. Duties differ for providers and deployers and by risk level (prohibited practices, high-risk uses, transparency duties for systems that interact with people or generate synthetic content).
+    exceptions: Many AI features carry no specific duty beyond general law. Not every AI feature has the same disclosure requirement.
+    effectiveDates: Obligations phase in over several years from 2025; confirm the dates for your role.
+    sourceIds: [SRC-EU-AI-ACT]
+    requiredEvidence: [AI feature inventory with role and risk screening, Transparency notices where required]
+    remediation: Inventory AI features, record your role for each, screen against prohibited and high-risk categories, and add disclosures where the Act requires them.
+    counselReview: true
+  - id: OB-HIPAA
+    title: US HIPAA
+    category: legal
+    jurisdiction: US
+    ruleCategory: sector
+    summary: Privacy, security and breach rules for protected health information.
+    applicabilityConditions: The business is a covered entity (health plan, clearinghouse, or provider that bills electronically) or a business associate handling PHI for one. Handling health data alone does not make HIPAA apply.
+    exceptions: Consumer health apps with no covered-entity relationship are usually outside HIPAA but may fall under FTC rules and state consumer health data laws.
+    sourceIds: [SRC-HHS-HIPAA]
+    requiredEvidence: [Role determination, Business associate agreements, Risk analysis, Safeguards]
+    remediation: Confirm your role with counsel. If in scope, sign BAAs (including with vendors that offer them), perform the risk analysis and implement safeguards before handling PHI.
+    counselReview: true
+    launchBlockerIfApplicable: true
+    relatedControls: [VEN-01, DAT-01, LOG-01]
+  - id: OB-FERPA
+    title: US FERPA
+    category: legal
+    jurisdiction: US
+    ruleCategory: sector
+    summary: Protects education records held by schools that receive federal funding.
+    applicabilityConditions: FERPA binds the school. A vendor is affected when it receives education records from a covered institution, typically as a "school official" under contract. Selling directly to consumers does not make education data FERPA records.
+    sourceIds: [SRC-ED-FERPA]
+    requiredEvidence: [Contracts with institutions, Use and redisclosure limits implemented]
+    remediation: If you serve covered institutions, meet their contract terms; check state student privacy laws as well.
+    counselReview: true
+    launchBlockerIfApplicable: true
+  - id: OB-GLBA
+    title: US GLBA
+    category: legal
+    jurisdiction: US
+    ruleCategory: sector
+    summary: Privacy and safeguards rules for financial institutions.
+    applicabilityConditions: The business is significantly engaged in financial activities (for example lending, payments transfer, financial advice, tax preparation), or receives customer information from such an institution. Showing prices or using a payment processor does not make you one.
+    sourceIds: [SRC-FTC-GLBA]
+    requiredEvidence: [Activity assessment, Written information security programme, Privacy notices]
+    remediation: Confirm with counsel whether your activities are covered; if so, implement the Safeguards Rule programme.
+    counselReview: true
+    launchBlockerIfApplicable: true
+  - id: OB-SANCTIONS
+    title: Sanctions compliance
+    category: legal
+    jurisdiction: US / EU / UK (by nexus)
+    ruleCategory: sanctions
+    summary: Restrictions on dealing with sanctioned jurisdictions, regions, persons and entities.
+    applicabilityConditions: Depends on your nexus (incorporation, owners, staff, currency, infrastructure and customers). US persons are subject to OFAC programs everywhere.
+    exceptions: General licences and exemptions exist for some services; these need counsel review.
+    sourceIds: [SRC-OFAC-PROGRAMS, SRC-EU-SANCTIONS-MAP, SRC-UK-SANCTIONS]
+    requiredEvidence: [Approved geo-policy, Payment-processor screening confirmation, Counsel memo on scope]
+    remediation: Maintain a counsel-reviewed sanctions track in the geo-policy (see docs/consultant/geo-policy.md). IP blocking alone is not sanctions screening.
+    counselReview: true
+  - id: OB-SOC2
+    title: SOC 2 report
+    category: voluntary
+    jurisdiction: Market-driven (mostly US buyers)
+    ruleCategory: attestation
+    summary: An independent auditor's report on controls. Not generally a legal launch requirement. There is no such thing as being "SOC 2 certified".
+    applicabilityConditions: Buyers, contracts or blocked revenue call for it.
+    sourceIds: [SRC-AICPA-SOC2]
+    requiredEvidence: [Buyer requirements, Readiness assessment]
+    remediation: See the SOC 2 positioning section of the report.
+    counselReview: false
+  - id: OB-ISO27001
+    title: ISO/IEC 27001 certification
+    category: voluntary
+    jurisdiction: Market-driven (often EU and global buyers)
+    ruleCategory: attestation
+    summary: Certification of an information security management system. Different in nature from SOC 2 and not interchangeable with it.
+    applicabilityConditions: Buyers or markets ask for it.
+    sourceIds: [SRC-ISO-27001]
+    requiredEvidence: [Buyer requirements, ISMS scope]
+    remediation: Evaluate alongside or instead of SOC 2, based on what buyers actually request.
+    counselReview: false

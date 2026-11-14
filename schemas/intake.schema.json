@@ -1,0 +1,1579 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "schemaVersion": {
+      "default": 1,
+      "type": "number",
+      "const": 1
+    },
+    "business": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "model": {
+          "default": "unknown",
+          "type": "string",
+          "enum": [
+            "b2c",
+            "b2b",
+            "hybrid",
+            "unknown"
+          ]
+        },
+        "enterpriseDealsInPipeline": {
+          "default": "unknown",
+          "type": "string",
+          "enum": [
+            "yes",
+            "no",
+            "unknown"
+          ]
+        },
+        "securityQuestionnairesReceived": {
+          "default": "unknown",
+          "type": "string",
+          "enum": [
+            "yes",
+            "no",
+            "unknown"
+          ]
+        },
+        "revenueBlockedBySecurityReview": {
+          "default": "unknown",
+          "type": "string",
+          "enum": [
+            "yes",
+            "no",
+            "unknown"
+          ]
+        },
+        "stage": {
+          "type": "string",
+          "enum": [
+            "prelaunch",
+            "launch",
+            "early_production",
+            "growth",
+            "enterprise_global"
+          ]
+        },
+        "team": {
+          "type": "object",
+          "properties": {
+            "size": {
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "maximum": 9007199254740991
+            },
+            "engineeringHoursPerWeek": {
+              "type": "number",
+              "minimum": 0
+            }
+          },
+          "required": [
+            "size"
+          ]
+        },
+        "budgetMonthlyUsd": {
+          "type": "number",
+          "minimum": 0
+        },
+        "riskTolerance": {
+          "default": "medium",
+          "type": "string",
+          "enum": [
+            "low",
+            "medium",
+            "high"
+          ]
+        },
+        "establishment": {
+          "default": {
+            "countries": []
+          },
+          "type": "object",
+          "properties": {
+            "countries": {
+              "default": [],
+              "type": "array",
+              "items": {
+                "type": "string",
+                "pattern": "^([A-Z]{2}|EU)$"
+              }
+            }
+          }
+        },
+        "targetMarkets": {
+          "default": [],
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^([A-Z]{2}|EU)$"
+          }
+        },
+        "dataLocations": {
+          "default": [],
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "dataClasses": {
+          "default": [],
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "personal",
+              "contact",
+              "account_credentials",
+              "precise_location",
+              "payment_card",
+              "financial",
+              "health",
+              "children",
+              "education",
+              "biometric",
+              "government_id",
+              "user_content",
+              "behavioral_analytics",
+              "employee",
+              "none"
+            ]
+          }
+        },
+        "processingPurposes": {
+          "default": [],
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "surfaces": {
+          "default": {
+            "ios": false,
+            "web": false,
+            "android": false,
+            "publicApi": false
+          },
+          "type": "object",
+          "properties": {
+            "ios": {
+              "default": false,
+              "type": "boolean"
+            },
+            "web": {
+              "default": false,
+              "type": "boolean"
+            },
+            "android": {
+              "default": false,
+              "type": "boolean"
+            },
+            "publicApi": {
+              "default": false,
+              "type": "boolean"
+            }
+          }
+        },
+        "sector": {
+          "default": {
+            "hipaaRole": "unknown",
+            "ferpaRole": "unknown",
+            "glbaFinancialInstitution": "unknown"
+          },
+          "type": "object",
+          "properties": {
+            "hipaaRole": {
+              "default": "unknown",
+              "type": "string",
+              "enum": [
+                "covered_entity",
+                "business_associate",
+                "none",
+                "unknown"
+              ]
+            },
+            "ferpaRole": {
+              "default": "unknown",
+              "type": "string",
+              "enum": [
+                "school_official_service_provider",
+                "none",
+                "unknown"
+              ]
+            },
+            "glbaFinancialInstitution": {
+              "default": "unknown",
+              "type": "string",
+              "enum": [
+                "yes",
+                "no",
+                "unknown"
+              ]
+            }
+          }
+        },
+        "children": {
+          "default": {
+            "directedToChildren": "unknown",
+            "likelyAccessedByChildren": "unknown",
+            "actualKnowledgeOfUnder13": "unknown"
+          },
+          "type": "object",
+          "properties": {
+            "directedToChildren": {
+              "default": "unknown",
+              "type": "string",
+              "enum": [
+                "yes",
+                "no",
+                "unknown"
+              ]
+            },
+            "likelyAccessedByChildren": {
+              "default": "unknown",
+              "type": "string",
+              "enum": [
+                "yes",
+                "no",
+                "unknown"
+              ]
+            },
+            "actualKnowledgeOfUnder13": {
+              "default": "unknown",
+              "type": "string",
+              "enum": [
+                "yes",
+                "no",
+                "unknown"
+              ]
+            }
+          }
+        },
+        "privacy": {
+          "default": {
+            "role": "unknown",
+            "offersToEuIndividuals": "unknown",
+            "monitorsEuBehaviour": "unknown",
+            "offersToUkIndividuals": "unknown",
+            "monitorsUkBehaviour": "unknown",
+            "processesInBrazilOrOffersToBrazil": "unknown",
+            "sellsOrSharesPersonalData": "unknown",
+            "largeScaleSensitiveProcessing": "unknown",
+            "occasionalProcessingOnly": "unknown"
+          },
+          "type": "object",
+          "properties": {
+            "role": {
+              "default": "unknown",
+              "type": "string",
+              "enum": [
+                "controller",
+                "processor",
+                "both",
+                "unknown"
+              ]
+            },
+            "offersToEuIndividuals": {
+              "default": "unknown",
+              "type": "string",
+              "enum": [
+                "yes",
+                "no",
+                "unknown"
+              ]
+            },
+            "monitorsEuBehaviour": {
+              "default": "unknown",
+              "type": "string",
+              "enum": [
+                "yes",
+                "no",
+                "unknown"
+              ]
+            },
+            "offersToUkIndividuals": {
+              "default": "unknown",
+              "type": "string",
+              "enum": [
+                "yes",
+                "no",
+                "unknown"
+              ]
+            },
+            "monitorsUkBehaviour": {
+              "default": "unknown",
+              "type": "string",
+              "enum": [
+                "yes",
+                "no",
+                "unknown"
+              ]
+            },
+            "processesInBrazilOrOffersToBrazil": {
+              "default": "unknown",
+              "type": "string",
+              "enum": [
+                "yes",
+                "no",
+                "unknown"
+              ]
+            },
+            "caResidentsPersonalDataPerYear": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "annualGrossRevenueUsd": {
+              "type": "number",
+              "minimum": 0
+            },
+            "revenueShareFromSellingOrSharingData": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "sellsOrSharesPersonalData": {
+              "default": "unknown",
+              "type": "string",
+              "enum": [
+                "yes",
+                "no",
+                "unknown"
+              ]
+            },
+            "largeScaleSensitiveProcessing": {
+              "default": "unknown",
+              "type": "string",
+              "enum": [
+                "yes",
+                "no",
+                "unknown"
+              ]
+            },
+            "occasionalProcessingOnly": {
+              "default": "unknown",
+              "type": "string",
+              "enum": [
+                "yes",
+                "no",
+                "unknown"
+              ]
+            }
+          }
+        },
+        "ios": {
+          "default": {
+            "supportsAccountCreation": "unknown",
+            "tracksPerAttDefinition": "unknown",
+            "thirdPartySdks": [],
+            "sellsDigitalGoodsOrSubscriptions": "unknown",
+            "usesRequiredReasonApis": "unknown"
+          },
+          "type": "object",
+          "properties": {
+            "supportsAccountCreation": {
+              "default": "unknown",
+              "type": "string",
+              "enum": [
+                "yes",
+                "no",
+                "unknown"
+              ]
+            },
+            "tracksPerAttDefinition": {
+              "default": "unknown",
+              "type": "string",
+              "enum": [
+                "yes",
+                "no",
+                "unknown"
+              ]
+            },
+            "thirdPartySdks": {
+              "default": [],
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "sellsDigitalGoodsOrSubscriptions": {
+              "default": "unknown",
+              "type": "string",
+              "enum": [
+                "yes",
+                "no",
+                "unknown"
+              ]
+            },
+            "usesRequiredReasonApis": {
+              "default": "unknown",
+              "type": "string",
+              "enum": [
+                "yes",
+                "no",
+                "unknown"
+              ]
+            }
+          }
+        },
+        "payments": {
+          "default": {
+            "method": "unknown",
+            "rawCardDataTouchesOurServers": "unknown"
+          },
+          "type": "object",
+          "properties": {
+            "method": {
+              "default": "unknown",
+              "type": "string",
+              "enum": [
+                "stripe_hosted_checkout",
+                "stripe_elements",
+                "apple_iap",
+                "custom_card_form",
+                "none",
+                "unknown"
+              ]
+            },
+            "rawCardDataTouchesOurServers": {
+              "default": "unknown",
+              "type": "string",
+              "enum": [
+                "yes",
+                "no",
+                "unknown"
+              ]
+            }
+          }
+        },
+        "ai": {
+          "default": {
+            "usesAi": "unknown",
+            "role": "unknown",
+            "usersInteractWithAiSystem": "unknown",
+            "generatesSyntheticContent": "unknown",
+            "possibleHighRiskUseCase": "unknown",
+            "outputUsedInEu": "unknown"
+          },
+          "type": "object",
+          "properties": {
+            "usesAi": {
+              "default": "unknown",
+              "type": "string",
+              "enum": [
+                "yes",
+                "no",
+                "unknown"
+              ]
+            },
+            "role": {
+              "default": "unknown",
+              "type": "string",
+              "enum": [
+                "provider",
+                "deployer",
+                "both",
+                "none",
+                "unknown"
+              ]
+            },
+            "usersInteractWithAiSystem": {
+              "default": "unknown",
+              "type": "string",
+              "enum": [
+                "yes",
+                "no",
+                "unknown"
+              ]
+            },
+            "generatesSyntheticContent": {
+              "default": "unknown",
+              "type": "string",
+              "enum": [
+                "yes",
+                "no",
+                "unknown"
+              ]
+            },
+            "possibleHighRiskUseCase": {
+              "default": "unknown",
+              "type": "string",
+              "enum": [
+                "yes",
+                "no",
+                "unknown"
+              ]
+            },
+            "outputUsedInEu": {
+              "default": "unknown",
+              "type": "string",
+              "enum": [
+                "yes",
+                "no",
+                "unknown"
+              ]
+            }
+          }
+        },
+        "accessibility": {
+          "default": {
+            "offersEaaCoveredServicesInEu": "unknown",
+            "microenterprise": "unknown",
+            "usPublicFacingService": "unknown"
+          },
+          "type": "object",
+          "properties": {
+            "offersEaaCoveredServicesInEu": {
+              "default": "unknown",
+              "type": "string",
+              "enum": [
+                "yes",
+                "no",
+                "unknown"
+              ]
+            },
+            "microenterprise": {
+              "default": "unknown",
+              "type": "string",
+              "enum": [
+                "yes",
+                "no",
+                "unknown"
+              ]
+            },
+            "usPublicFacingService": {
+              "default": "unknown",
+              "type": "string",
+              "enum": [
+                "yes",
+                "no",
+                "unknown"
+              ]
+            }
+          }
+        }
+      },
+      "required": [
+        "name",
+        "stage",
+        "team"
+      ]
+    },
+    "workload": {
+      "type": "object",
+      "properties": {
+        "mau": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "dau": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "peakConcurrentActiveUsers": {
+          "description": "Users with an active session making requests in the same minute",
+          "type": "number",
+          "minimum": 0
+        },
+        "requestsPerActiveUserPerMinute": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "peakToAverageRatio": {
+          "default": 3,
+          "type": "number",
+          "minimum": 1
+        },
+        "burstMultiplier": {
+          "default": 2,
+          "description": "Short spikes above peak (seconds to minutes)",
+          "type": "number",
+          "minimum": 1
+        },
+        "requestMix": {
+          "default": [],
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "share": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1,
+                "description": "Fraction of requests (all classes should sum to 1)"
+              },
+              "avgDurationMs": {
+                "type": "number",
+                "exclusiveMinimum": 0
+              },
+              "dbQueriesPerRequest": {
+                "default": 0,
+                "type": "number",
+                "minimum": 0
+              },
+              "avgDbQueryMs": {
+                "default": 0,
+                "type": "number",
+                "minimum": 0
+              },
+              "cacheHitRatio": {
+                "default": 0,
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              }
+            },
+            "required": [
+              "name",
+              "share",
+              "avgDurationMs"
+            ]
+          }
+        },
+        "growth": {
+          "default": {},
+          "type": "object",
+          "properties": {
+            "monthlyRate": {
+              "type": "number",
+              "minimum": -1,
+              "maximum": 10
+            }
+          }
+        },
+        "storage": {
+          "default": {
+            "indexOverheadRatio": 0.3,
+            "objectVersioning": false,
+            "versionOverheadRatio": 0.2,
+            "replicaCount": 1
+          },
+          "type": "object",
+          "properties": {
+            "databaseGb": {
+              "type": "number",
+              "minimum": 0
+            },
+            "databaseGrowthGbPerMonth": {
+              "type": "number",
+              "minimum": 0
+            },
+            "indexOverheadRatio": {
+              "default": 0.3,
+              "type": "number",
+              "minimum": 0,
+              "maximum": 5
+            },
+            "objectStorageGb": {
+              "type": "number",
+              "minimum": 0
+            },
+            "uploadsPerDay": {
+              "type": "number",
+              "minimum": 0
+            },
+            "avgUploadMb": {
+              "type": "number",
+              "minimum": 0
+            },
+            "objectRetentionDays": {
+              "description": "Omit for keep-forever",
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "maximum": 9007199254740991
+            },
+            "objectVersioning": {
+              "default": false,
+              "type": "boolean"
+            },
+            "versionOverheadRatio": {
+              "default": 0.2,
+              "type": "number",
+              "minimum": 0,
+              "maximum": 10
+            },
+            "replicaCount": {
+              "default": 1,
+              "description": "Total stored copies incl. primary",
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9007199254740991
+            },
+            "backupRetentionDays": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "backupFullCopiesRetained": {
+              "description": "If omitted, estimated as one full copy per 7 days of retention",
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "logsGbPerDay": {
+              "type": "number",
+              "minimum": 0
+            },
+            "logRetentionDays": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "egressGbPerMonth": {
+              "type": "number",
+              "minimum": 0
+            }
+          }
+        },
+        "limits": {
+          "default": {},
+          "type": "object",
+          "properties": {
+            "computeConcurrency": {
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "maximum": 9007199254740991
+            },
+            "functionTimeoutMs": {
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "maximum": 9007199254740991
+            },
+            "dbMaxConnections": {
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "maximum": 9007199254740991
+            },
+            "dbPoolSize": {
+              "type": "integer",
+              "exclusiveMinimum": 0,
+              "maximum": 9007199254740991
+            },
+            "dbQuotaGb": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "objectStorageQuotaGb": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "logQuotaGb": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            }
+          }
+        },
+        "unitPrices": {
+          "default": {},
+          "type": "object",
+          "properties": {
+            "perMillionRequests": {
+              "type": "object",
+              "properties": {
+                "usd": {
+                  "type": "number",
+                  "minimum": 0
+                },
+                "sourceDate": {
+                  "type": "string",
+                  "format": "date",
+                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
+                },
+                "source": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "usd",
+                "sourceDate"
+              ]
+            },
+            "perGbSecondCompute": {
+              "type": "object",
+              "properties": {
+                "usd": {
+                  "type": "number",
+                  "minimum": 0
+                },
+                "sourceDate": {
+                  "type": "string",
+                  "format": "date",
+                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
+                },
+                "source": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "usd",
+                "sourceDate"
+              ]
+            },
+            "perGbMonthDatabase": {
+              "type": "object",
+              "properties": {
+                "usd": {
+                  "type": "number",
+                  "minimum": 0
+                },
+                "sourceDate": {
+                  "type": "string",
+                  "format": "date",
+                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
+                },
+                "source": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "usd",
+                "sourceDate"
+              ]
+            },
+            "perGbMonthObject": {
+              "type": "object",
+              "properties": {
+                "usd": {
+                  "type": "number",
+                  "minimum": 0
+                },
+                "sourceDate": {
+                  "type": "string",
+                  "format": "date",
+                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
+                },
+                "source": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "usd",
+                "sourceDate"
+              ]
+            },
+            "perGbMonthBackup": {
+              "type": "object",
+              "properties": {
+                "usd": {
+                  "type": "number",
+                  "minimum": 0
+                },
+                "sourceDate": {
+                  "type": "string",
+                  "format": "date",
+                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
+                },
+                "source": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "usd",
+                "sourceDate"
+              ]
+            },
+            "perGbEgress": {
+              "type": "object",
+              "properties": {
+                "usd": {
+                  "type": "number",
+                  "minimum": 0
+                },
+                "sourceDate": {
+                  "type": "string",
+                  "format": "date",
+                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
+                },
+                "source": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "usd",
+                "sourceDate"
+              ]
+            },
+            "perGbLogsIngested": {
+              "type": "object",
+              "properties": {
+                "usd": {
+                  "type": "number",
+                  "minimum": 0
+                },
+                "sourceDate": {
+                  "type": "string",
+                  "format": "date",
+                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
+                },
+                "source": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "usd",
+                "sourceDate"
+              ]
+            },
+            "fixedMonthly": {
+              "type": "object",
+              "properties": {
+                "usd": {
+                  "type": "number",
+                  "minimum": 0
+                },
+                "sourceDate": {
+                  "type": "string",
+                  "format": "date",
+                  "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
+                },
+                "source": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "usd",
+                "sourceDate"
+              ]
+            }
+          }
+        },
+        "computeMemoryGb": {
+          "default": 1,
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "slo": {
+          "default": {},
+          "type": "object",
+          "properties": {
+            "availability": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 1
+            },
+            "p95LatencyMs": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            }
+          }
+        },
+        "rtoMinutes": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "rpoMinutes": {
+          "type": "number",
+          "minimum": 0
+        },
+        "measurements": {
+          "default": [],
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "metric": {
+                "type": "string"
+              },
+              "value": {
+                "type": "number"
+              },
+              "unit": {
+                "type": "string"
+              },
+              "measuredAt": {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+              },
+              "provenance": {
+                "type": "string",
+                "enum": [
+                  "observed",
+                  "self_reported",
+                  "inferred",
+                  "unknown"
+                ]
+              },
+              "evidenceRef": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "metric",
+              "value",
+              "unit",
+              "measuredAt",
+              "provenance"
+            ]
+          }
+        },
+        "loadTests": {
+          "default": [],
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "scenario": {
+                "type": "string",
+                "enum": [
+                  "baseline",
+                  "ramp",
+                  "spike",
+                  "soak",
+                  "recovery"
+                ]
+              },
+              "environment": {
+                "type": "string",
+                "enum": [
+                  "local",
+                  "staging",
+                  "production"
+                ]
+              },
+              "sustainedRps": {
+                "type": "number",
+                "exclusiveMinimum": 0
+              },
+              "p95Ms": {
+                "type": "number",
+                "exclusiveMinimum": 0
+              },
+              "errorRate": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1
+              },
+              "testedAt": {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+              },
+              "evidenceRef": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "scenario",
+              "environment",
+              "sustainedRps",
+              "p95Ms",
+              "errorRate",
+              "testedAt",
+              "evidenceRef"
+            ]
+          }
+        }
+      }
+    },
+    "infrastructure": {
+      "type": "object",
+      "properties": {
+        "components": {
+          "default": [],
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z0-9][a-z0-9._-]*$"
+              },
+              "kind": {
+                "type": "string",
+                "enum": [
+                  "dns",
+                  "edge",
+                  "cdn",
+                  "compute",
+                  "function",
+                  "database",
+                  "object_storage",
+                  "queue",
+                  "scheduled_job",
+                  "auth",
+                  "payments",
+                  "email",
+                  "monitoring",
+                  "third_party"
+                ]
+              },
+              "vendor": {
+                "type": "string"
+              },
+              "regions": {
+                "default": [],
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "holdsCustomerData": {
+                "default": false,
+                "type": "boolean"
+              },
+              "dependsOn": {
+                "default": [],
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "controls": {
+                "default": {
+                  "healthCheck": "unknown",
+                  "timeoutsConfigured": "unknown",
+                  "retriesWithBackoffAndJitter": "unknown",
+                  "circuitBreakerOrLoadShedding": "unknown",
+                  "idempotentWrites": "unknown",
+                  "rateLimited": "unknown",
+                  "backups": "unknown",
+                  "restoreTested": "unknown",
+                  "originOnlyReachableViaEdge": "unknown",
+                  "tenantIsolationEnforced": "unknown",
+                  "encryptionAtRest": "unknown"
+                },
+                "type": "object",
+                "properties": {
+                  "healthCheck": {
+                    "default": "unknown",
+                    "type": "string",
+                    "enum": [
+                      "yes",
+                      "no",
+                      "unknown"
+                    ]
+                  },
+                  "timeoutsConfigured": {
+                    "default": "unknown",
+                    "type": "string",
+                    "enum": [
+                      "yes",
+                      "no",
+                      "unknown"
+                    ]
+                  },
+                  "retriesWithBackoffAndJitter": {
+                    "default": "unknown",
+                    "type": "string",
+                    "enum": [
+                      "yes",
+                      "no",
+                      "unknown"
+                    ]
+                  },
+                  "circuitBreakerOrLoadShedding": {
+                    "default": "unknown",
+                    "type": "string",
+                    "enum": [
+                      "yes",
+                      "no",
+                      "unknown"
+                    ]
+                  },
+                  "idempotentWrites": {
+                    "default": "unknown",
+                    "type": "string",
+                    "enum": [
+                      "yes",
+                      "no",
+                      "unknown"
+                    ]
+                  },
+                  "rateLimited": {
+                    "default": "unknown",
+                    "type": "string",
+                    "enum": [
+                      "yes",
+                      "no",
+                      "unknown"
+                    ]
+                  },
+                  "backups": {
+                    "default": "unknown",
+                    "type": "string",
+                    "enum": [
+                      "yes",
+                      "no",
+                      "unknown"
+                    ]
+                  },
+                  "restoreTested": {
+                    "default": "unknown",
+                    "type": "string",
+                    "enum": [
+                      "yes",
+                      "no",
+                      "unknown"
+                    ]
+                  },
+                  "originOnlyReachableViaEdge": {
+                    "default": "unknown",
+                    "type": "string",
+                    "enum": [
+                      "yes",
+                      "no",
+                      "unknown"
+                    ]
+                  },
+                  "tenantIsolationEnforced": {
+                    "default": "unknown",
+                    "type": "string",
+                    "enum": [
+                      "yes",
+                      "no",
+                      "unknown"
+                    ]
+                  },
+                  "encryptionAtRest": {
+                    "default": "unknown",
+                    "type": "string",
+                    "enum": [
+                      "yes",
+                      "no",
+                      "unknown"
+                    ]
+                  }
+                }
+              },
+              "notes": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "kind"
+            ]
+          }
+        },
+        "environments": {
+          "default": [],
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "local",
+              "preview",
+              "staging",
+              "production"
+            ]
+          }
+        },
+        "productionIsolatedFromNonProduction": {
+          "default": "unknown",
+          "type": "string",
+          "enum": [
+            "yes",
+            "no",
+            "unknown"
+          ]
+        },
+        "criticalJourneys": {
+          "default": [],
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "components": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "sloP95Ms": {
+                "type": "number",
+                "exclusiveMinimum": 0
+              }
+            },
+            "required": [
+              "name",
+              "components"
+            ]
+          }
+        },
+        "tlsEverywhere": {
+          "default": "unknown",
+          "type": "string",
+          "enum": [
+            "yes",
+            "no",
+            "unknown"
+          ]
+        },
+        "dnsRegistrarLocked": {
+          "default": "unknown",
+          "type": "string",
+          "enum": [
+            "yes",
+            "no",
+            "unknown"
+          ]
+        }
+      }
+    },
+    "data": {
+      "type": "object",
+      "properties": {
+        "datasets": {
+          "default": [],
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "classes": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "personal",
+                    "contact",
+                    "account_credentials",
+                    "precise_location",
+                    "payment_card",
+                    "financial",
+                    "health",
+                    "children",
+                    "education",
+                    "biometric",
+                    "government_id",
+                    "user_content",
+                    "behavioral_analytics",
+                    "employee",
+                    "none"
+                  ]
+                }
+              },
+              "locations": {
+                "default": [],
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "retentionDays": {
+                "type": "integer",
+                "exclusiveMinimum": 0,
+                "maximum": 9007199254740991
+              },
+              "deletionProcess": {
+                "default": "unknown",
+                "type": "string",
+                "enum": [
+                  "yes",
+                  "no",
+                  "unknown"
+                ]
+              },
+              "backedUp": {
+                "default": "unknown",
+                "type": "string",
+                "enum": [
+                  "yes",
+                  "no",
+                  "unknown"
+                ]
+              }
+            },
+            "required": [
+              "name",
+              "classes"
+            ]
+          }
+        },
+        "vendors": {
+          "default": [],
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "purpose": {
+                "type": "string"
+              },
+              "processesCustomerData": {
+                "type": "boolean"
+              },
+              "critical": {
+                "default": false,
+                "type": "boolean"
+              },
+              "dpaSigned": {
+                "default": "unknown",
+                "type": "string",
+                "enum": [
+                  "yes",
+                  "no",
+                  "unknown"
+                ]
+              },
+              "regions": {
+                "default": [],
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "assurance": {
+                "default": [],
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "soc2_type1",
+                    "soc2_type2",
+                    "iso27001",
+                    "pci_dss_aoc",
+                    "hipaa_baa_available",
+                    "none_known"
+                  ]
+                }
+              },
+              "assuranceReportDate": {
+                "type": "string",
+                "format": "date",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
+              },
+              "subprocessorsReviewed": {
+                "default": "unknown",
+                "type": "string",
+                "enum": [
+                  "yes",
+                  "no",
+                  "unknown"
+                ]
+              }
+            },
+            "required": [
+              "name",
+              "purpose",
+              "processesCustomerData"
+            ]
+          }
+        }
+      }
+    },
+    "evidence": {
+      "default": [],
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9._-]+$"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "config_export",
+              "screenshot",
+              "log_extract",
+              "attestation",
+              "statement",
+              "test_result",
+              "load_test",
+              "restore_test",
+              "policy_document",
+              "repo_scan",
+              "ticket",
+              "other"
+            ]
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 2000
+          },
+          "provenance": {
+            "type": "string",
+            "enum": [
+              "observed",
+              "self_reported",
+              "inferred",
+              "unknown"
+            ]
+          },
+          "collectedAt": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+          },
+          "collectedBy": {
+            "type": "string"
+          },
+          "reference": {
+            "type": "string",
+            "maxLength": 500,
+            "description": "Path or URL to the evidence. Never paste secrets or raw customer data."
+          },
+          "assertions": {
+            "minItems": 1,
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "controlId": {
+                  "type": "string"
+                },
+                "state": {
+                  "type": "string",
+                  "enum": [
+                    "met",
+                    "partial",
+                    "unmet",
+                    "unknown",
+                    "not_applicable"
+                  ]
+                },
+                "justification": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "controlId",
+                "state"
+              ]
+            }
+          }
+        },
+        "required": [
+          "id",
+          "kind",
+          "description",
+          "provenance",
+          "collectedAt",
+          "reference",
+          "assertions"
+        ]
+      }
+    },
+    "assessedAt": {
+      "description": "Fixed timestamp for reproducible reports; defaults to now",
+      "type": "string",
+      "format": "date-time",
+      "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z|([+-](?:[01]\\d|2[0-3]):[0-5]\\d)))$"
+    }
+  },
+  "required": [
+    "business"
+  ]
+}

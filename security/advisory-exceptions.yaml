@@ -1,0 +1,16 @@
+# Governance for dependency advisories we knowingly accept for a limited time.
+# Rules: every exception has an owner, a reason, the affected scope, a compensating measure and an
+# expiry no more than 90 days out. Expired exceptions must be re-reviewed or removed.
+# The dependency-review job fails on high or critical advisories in changed dependencies; only GHSA
+# ids listed here (and copied into allow-ghsas in .github/workflows/ci.yml) may be allowed.
+exceptions:
+  - ghsa: GHSA-g3hv-75wg-m249
+    package: minimatch (transitive via typescript-eslint)
+    severity: moderate
+    scope: development only (lint tooling); not shipped, not used at runtime by bcr
+    reason: The only offered fix is a breaking downgrade of typescript-eslint. The vulnerable pattern needs attacker-controlled glob patterns, and our lint config uses fixed globs.
+    compensatingMeasure: Lint runs only on this repository's own files in CI; no user input reaches minimatch.
+    owner: repository owner
+    recorded: "2026-11-14"
+    expires: "2027-02-12"
+    allowListedInCi: false   # moderate is below the CI failure threshold, so no allow-list entry is needed

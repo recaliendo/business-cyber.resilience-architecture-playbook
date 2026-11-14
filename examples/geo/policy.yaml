@@ -1,0 +1,71 @@
+# SYNTHETIC EXAMPLE 5: geo-policy. NOT A PRODUCTION LIST AND NOT LEGAL ADVICE.
+# - "XX" is a user-assigned ISO 3166 code used here as a stand-in for a comprehensively sanctioned
+#   jurisdiction. Real entries must come from official sources with counsel review.
+# - The Ukraine entries show how legally described REGIONAL restrictions are modelled: they must
+#   never become a whole-country block. Wording and code mappings are illustrative only.
+# Every rule is marked synthetic: true, so `bcr enforce plan` refuses it without --allow-synthetic.
+policyId: example-geo-policy
+version: 3
+businessModel: b2c
+quarterlyReviewDue: "2027-01-31"
+rules:
+  - id: SAN-US-OFAC-XX
+    track: sanctions
+    selector: { type: country, code: XX }
+    action: BLOCK
+    reason: Synthetic stand-in for a comprehensive country program.
+    legalBasis: "SYNTHETIC: cite the specific program and regulation here."
+    sourceRefs: [SRC-OFAC-PROGRAMS]
+    confidence: high
+    dateAdded: "2026-08-01"
+    effectiveDate: "2026-08-01"
+    reviewDate: "2027-01-31"
+    counselReviewed: true
+    synthetic: true
+  - id: SAN-US-OFAC-UA-CRIMEA
+    track: sanctions
+    selector:
+      type: territory
+      country: UA
+      legalDescription: "SYNTHETIC wording: the Crimea region of Ukraine as described in the relevant program."
+      approximateSubdivisions: [UA-43, UA-40]
+      mappingNote: "Counsel-agreed approximation (synthetic): Autonomous Republic of Crimea (UA-43) and Sevastopol (UA-40)."
+    action: BLOCK
+    reason: Regional restriction modelled as a territory, not a country.
+    legalBasis: "SYNTHETIC: cite the program and section here."
+    sourceRefs: [SRC-OFAC-PROGRAMS]
+    confidence: medium
+    dateAdded: "2026-08-01"
+    effectiveDate: "2026-08-01"
+    reviewDate: "2027-01-31"
+    counselReviewed: true
+    synthetic: true
+  - id: SAN-US-OFAC-UA-DNR-LNR
+    track: sanctions
+    selector:
+      type: territory
+      country: UA
+      legalDescription: "SYNTHETIC wording: the so-called DNR and LNR regions as described in the relevant program; boundaries do not match oblast codes."
+      approximateSubdivisions: []
+      mappingNote: "No agreed approximation yet: oblast codes UA-14/UA-09 are broader than the legal description."
+    action: BLOCK
+    reason: Shows a rule that cannot be compiled to edge rules without a counsel-agreed mapping.
+    legalBasis: "SYNTHETIC: cite the program and section here."
+    sourceRefs: [SRC-OFAC-PROGRAMS]
+    confidence: medium
+    dateAdded: "2026-08-01"
+    effectiveDate: "2026-08-01"
+    reviewDate: "2027-01-31"
+    counselReviewed: false
+    synthetic: true
+  - id: THR-MONITOR-QZ
+    track: threat
+    selector: { type: country, code: QZ }
+    action: MONITOR
+    reason: Synthetic monitoring rule for elevated credential stuffing.
+    sourceRefs: [own-auth-logs]
+    confidence: low
+    dateAdded: "2026-10-01"
+    effectiveDate: "2026-10-01"
+    reviewDate: "2027-01-31"
+    synthetic: true

@@ -1,0 +1,64 @@
+# SYNTHETIC EXAMPLE 1: solo founder launching a B2C habit-tracking app on iOS and web.
+# Deliberately partial: shows how the consultant asks follow-ups and marks unknowns.
+schemaVersion: 1
+assessedAt: "2026-11-14T12:00:00Z"
+business:
+  name: Sproutly (synthetic)
+  model: b2c
+  stage: launch
+  team: { size: 1, engineeringHoursPerWeek: 30 }
+  budgetMonthlyUsd: 300
+  riskTolerance: medium
+  establishment: { countries: [US] }
+  targetMarkets: [US, CA]
+  dataLocations: [us-east-1]
+  dataClasses: [personal, contact, account_credentials, user_content, behavioral_analytics]
+  processingPurposes: [account management, habit tracking, product analytics]
+  surfaces: { ios: true, web: true }
+  sector: { hipaaRole: none, ferpaRole: none, glbaFinancialInstitution: "no" }
+  children: { directedToChildren: "no", likelyAccessedByChildren: "no", actualKnowledgeOfUnder13: "no" }
+  privacy:
+    role: controller
+    offersToEuIndividuals: "no"
+    monitorsEuBehaviour: "no"
+    offersToUkIndividuals: "no"
+    monitorsUkBehaviour: "no"
+    processesInBrazilOrOffersToBrazil: "no"
+    caResidentsPersonalDataPerYear: 4000
+    annualGrossRevenueUsd: 0
+    sellsOrSharesPersonalData: "no"
+  ios:
+    supportsAccountCreation: "yes"
+    tracksPerAttDefinition: "no"
+    thirdPartySdks: [RevenueCat, Sentry]
+    sellsDigitalGoodsOrSubscriptions: "yes"
+    usesRequiredReasonApis: "yes"
+  payments: { method: apple_iap, rawCardDataTouchesOurServers: "no" }
+  ai: { usesAi: "no" }
+  accessibility: { offersEaaCoveredServicesInEu: "no", usPublicFacingService: "yes" }
+workload:
+  mau: 2000
+  dau: 400
+  peakConcurrentActiveUsers: 60
+  requestsPerActiveUserPerMinute: 4
+  requestMix:
+    - { name: read_habits, share: 0.7, avgDurationMs: 120, dbQueriesPerRequest: 2, avgDbQueryMs: 4, cacheHitRatio: 0.2 }
+    - { name: write_checkin, share: 0.25, avgDurationMs: 180, dbQueriesPerRequest: 3, avgDbQueryMs: 6 }
+    - { name: export, share: 0.05, avgDurationMs: 1500, dbQueriesPerRequest: 10, avgDbQueryMs: 20 }
+  storage: { databaseGb: 0.3, databaseGrowthGbPerMonth: 0.1, backupRetentionDays: 7 }
+  limits: { dbQuotaGb: 8, dbMaxConnections: 60 }
+evidence:
+  - id: ev-mfa-github
+    kind: screenshot
+    description: GitHub account security page showing passkey and TOTP enabled.
+    provenance: self_reported
+    collectedAt: "2026-11-01T10:00:00Z"
+    reference: evidence/2026-11/github-mfa.png
+    assertions: [{ controlId: IAM-01, state: partial, justification: "GitHub and Apple done; registrar and Stripe not yet." }]
+  - id: ev-branch-protection
+    kind: config_export
+    description: Branch protection API export for main.
+    provenance: observed
+    collectedAt: "2026-11-10T09:00:00Z"
+    reference: evidence/2026-11/branch-protection.json
+    assertions: [{ controlId: CHG-01, state: met }]
