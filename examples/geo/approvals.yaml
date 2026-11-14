@@ -3,7 +3,7 @@ approvals:
   - id: APR-example-geo-policy-v3
     policyId: example-geo-policy
     policyVersion: 3
-    policyHash: 5c9fa65bc42441036a046ef87bcf2b75aef486ef23c7b6263b58d78ba7c6e180
+    policyHash: 4cc1fc2eff02d95f5d9bc97f7639dfb3f283dfbb520fef537a4139f4d2f22944
     approver: example-approver (synthetic)
     approvedAt: 2026-11-14T09:00:00Z
     changeRef: https://github.com/example-org/example-repo/pull/1

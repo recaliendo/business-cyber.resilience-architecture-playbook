@@ -4,7 +4,7 @@
 # src/engines/compliance/applicability.ts and is tested; this file holds the reviewed wording.
 # Nothing here is legal advice. Every "applicable" or "uncertain" result should be confirmed
 # with counsel where counselReview is true.
-version: "1.0.0"
+version: "1.1.0"
 obligations:
   - id: OB-GDPR
     title: EU GDPR
@@ -66,9 +66,9 @@ obligations:
     jurisdiction: US-CA
     ruleCategory: privacy
     summary: Privacy rights for California residents, applying to for-profit businesses that meet a threshold.
-    applicabilityConditions: Does business in California and meets at least one threshold (annual gross revenue above the CPI-adjusted figure; personal information of 100,000 or more consumers or households; or 50% or more of revenue from selling or sharing personal information).
+    applicabilityConditions: Does business in California and meets at least one threshold (annual gross revenue over $26,625,000, the CPI-adjusted figure in force since 1 January 2025; personal information of 100,000 or more consumers or households; or 50% or more of revenue from selling or sharing personal information).
     exceptions: Below all thresholds; non-profit; certain data already covered by sector laws. Service providers have contract-based duties.
-    sourceIds: [SRC-CA-CCPA, SRC-CPPA-REGS]
+    sourceIds: [SRC-CA-CCPA, SRC-CPPA-CPI, SRC-CPPA-REGS]
     requiredEvidence: [Threshold assessment, Privacy policy with required disclosures, Request workflow, Service-provider contract terms]
     remediation: Record the threshold assessment each year; if in scope, add disclosures, request handling and opt-out of sale/sharing.
     counselReview: true
@@ -128,7 +128,7 @@ obligations:
     ruleCategory: platform
     summary: Apps and listed third-party SDKs must declare reasons for certain APIs and include privacy manifests.
     applicabilityConditions: The app or one of its SDKs uses a required-reason API, or includes an SDK on Apple's list.
-    sourceIds: [SRC-APPLE-PRIVACY-MANIFEST]
+    sourceIds: [SRC-APPLE-PRIVACY-MANIFEST, SRC-APPLE-SDK-REQUIREMENTS]
     requiredEvidence: [PrivacyInfo.xcprivacy in the app, Manifests and signatures for listed SDKs]
     remediation: Add the manifest, declare approved reasons, and update SDKs to versions that ship manifests.
     counselReview: false
@@ -166,7 +166,7 @@ obligations:
     ruleCategory: platform
     summary: Rules on how digital goods and subscriptions may be sold in iOS apps.
     applicabilityConditions: The iOS app sells digital goods, content or subscriptions consumed in the app.
-    exceptions: Physical goods and services; reader and other categories; regional rules that allow alternatives. These change, so check current Apple sources for each storefront.
+    exceptions: Physical goods and services; reader apps; storefront rules. US storefront apps may link to other purchase methods without an entitlement; other storefronts only under StoreKit External Purchase Link entitlements where permitted; EU terms differ. These change, so check current Apple sources for each storefront.
     sourceIds: [SRC-APPLE-REVIEW]
     requiredEvidence: [Purchase-flow review against the current guidelines for each storefront]
     remediation: Decide per storefront between IAP and any permitted alternative, using current Apple documentation.
@@ -251,10 +251,10 @@ obligations:
     jurisdiction: EU
     ruleCategory: ai
     summary: Risk-based rules for AI systems, with duties that depend on your role and the use case.
-    applicabilityConditions: Placing an AI system on the EU market, deploying one in the EU, or the system's output being used in the EU. Duties differ for providers and deployers and by risk level (prohibited practices, high-risk uses, transparency duties for systems that interact with people or generate synthetic content).
+    applicabilityConditions: Placing an AI system on the EU market, deploying one in the EU, or the system's output being used in the EU. Duties differ for providers and deployers and by risk level. Art. 50 transparency - providers inform people they are interacting with AI (50(1)) and mark synthetic output (50(2)); deployers inform people exposed to emotion recognition or biometric categorisation (50(3)) and disclose deepfakes (50(4)).
     exceptions: Many AI features carry no specific duty beyond general law. Not every AI feature has the same disclosure requirement.
-    effectiveDates: Obligations phase in over several years from 2025; confirm the dates for your role.
-    sourceIds: [SRC-EU-AI-ACT]
+    effectiveDates: "As amended by Regulation (EU) 2026/1744: prohibitions and AI literacy from 2 Feb 2025; GPAI and governance from 2 Aug 2025; general application including Art. 50 from 2 Aug 2026 (Art. 50(2) marking for systems already on the market by 2 Dec 2026); new prohibitions from 2 Dec 2026; high-risk obligations from 2 Dec 2027 (Annex III) and 2 Aug 2028 (Annex I)."
+    sourceIds: [SRC-EU-AI-ACT, SRC-EU-AI-OMNIBUS]
     requiredEvidence: [AI feature inventory with role and risk screening, Transparency notices where required]
     remediation: Inventory AI features, record your role for each, screen against prohibited and high-risk categories, and add disclosures where the Act requires them.
     counselReview: true
@@ -290,7 +290,7 @@ obligations:
     jurisdiction: US
     ruleCategory: sector
     summary: Privacy and safeguards rules for financial institutions.
-    applicabilityConditions: The business is significantly engaged in financial activities (for example lending, payments transfer, financial advice, tax preparation), or receives customer information from such an institution. Showing prices or using a payment processor does not make you one.
+    applicabilityConditions: The business offers consumers financial products or services such as loans, financial or investment advice, or insurance (the FTC rules' test is being significantly engaged in financial activities), or receives customer information from such an institution. Showing prices or using a payment processor does not make you one.
     sourceIds: [SRC-FTC-GLBA]
     requiredEvidence: [Activity assessment, Written information security programme, Privacy notices]
     remediation: Confirm with counsel whether your activities are covered; if so, implement the Safeguards Rule programme.
@@ -304,9 +304,9 @@ obligations:
     summary: Restrictions on dealing with sanctioned jurisdictions, regions, persons and entities.
     applicabilityConditions: Depends on your nexus (incorporation, owners, staff, currency, infrastructure and customers). US persons are subject to OFAC programs everywhere.
     exceptions: General licences and exemptions exist for some services; these need counsel review.
-    sourceIds: [SRC-OFAC-PROGRAMS, SRC-EU-SANCTIONS-MAP, SRC-UK-SANCTIONS]
+    sourceIds: [SRC-OFAC-PROGRAMS, SRC-OFAC-UKRAINE, SRC-OFAC-FAQ-1009, SRC-EU-SANCTIONS-MAP, SRC-UK-SANCTIONS, SRC-UK-SANCTIONS-LIST]
     requiredEvidence: [Approved geo-policy, Payment-processor screening confirmation, Counsel memo on scope]
-    remediation: Maintain a counsel-reviewed sanctions track in the geo-policy (see docs/consultant/geo-policy.md). IP blocking alone is not sanctions screening.
+    remediation: Maintain a counsel-reviewed sanctions track in the geo-policy (see docs/consultant/geo-policy.md). IP blocking alone is not sanctions screening. For the UK, screen against the UK Sanctions List (the OFSI Consolidated List closed on 28 January 2026).
     counselReview: true
   - id: OB-SOC2
     title: SOC 2 report

@@ -79,6 +79,55 @@
               "null"
             ]
           },
+          "verificationMethod": {
+            "default": null,
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "human",
+                  "automated"
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "claims": {
+            "default": [],
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "pattern": "^[a-z0-9-]+$"
+                },
+                "claim": {
+                  "type": "string",
+                  "minLength": 5
+                },
+                "status": {
+                  "type": "string",
+                  "enum": [
+                    "confirmed",
+                    "partial",
+                    "not_confirmed",
+                    "contradicted"
+                  ]
+                },
+                "note": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id",
+                "claim",
+                "status"
+              ]
+            }
+          },
           "reviewCadenceDays": {
             "type": "integer",
             "exclusiveMinimum": 0,

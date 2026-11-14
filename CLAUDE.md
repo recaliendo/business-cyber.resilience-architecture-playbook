@@ -37,7 +37,7 @@ CLI reference: [docs/consultant/cli.md](docs/consultant/cli.md).
 
 ## Legal-source maintenance
 
-All sources in `knowledge/sources/registry.yaml` are currently **unverified**. Follow [docs/consultant/source-governance.md](docs/consultant/source-governance.md) to verify one. Only fill in `verifiedAt` / `verifiedBy` after a person has actually read the source. Refreshing a source never rewrites rules or approved policy.
+Sources in `knowledge/sources/registry.yaml` record a `verificationMethod` (`human` or `automated`) and the `claims` checked, each with a status. All sources are currently **machine-verified** (2026-11-14); none has human sign-off. When you verify a source as an agent, record it as `automated`, with `verifiedBy` naming the tool and stating "not human sign-off", and check each claim individually. Mark anything you could not see as `partial` or `not_confirmed`, never `confirmed`. If a source contradicts a rule, fix the rule in the same change and bump the catalog version. Only a person may set `verificationMethod: human`. Refreshing a source never rewrites rules or approved policy. Procedure: [docs/consultant/source-governance.md](docs/consultant/source-governance.md).
 
 ## How to extend
 

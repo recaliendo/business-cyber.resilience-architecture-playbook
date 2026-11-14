@@ -112,10 +112,16 @@ async function main(argv: string[]): Promise<void> {
       const { values } = parseArgs({ args: rest, options: { json: BOOL, 'dry-run': BOOL, 'allow-network': BOOL, id: { type: 'string', multiple: true } } });
       const reg = loadSources();
       if (sub === 'status') {
-        const st = sourceStatus(reg, new Date());
+        const { loadObligations } = await import('../knowledge/load.js');
+        const { loadCapabilities } = await import('../engines/geo/compiler.js');
+        const { countDependents } = await import('../sources/sources.js');
+        const deps = countDependents([...loadObligations().obligations.map((o) => o.sourceIds), ...Object.values(loadCapabilities().providers).map((p) => p.sourceIds)]);
+        const st = sourceStatus(reg, new Date(), deps);
         if (values.json) return out(JSON.stringify(st, null, 2));
-        out(`${st.filter((s) => s.state === 'verified').length} verified, ${st.filter((s) => s.state === 'stale').length} stale, ${st.filter((s) => s.state === 'unverified').length} unverified`);
-        st.filter((s) => s.state !== 'verified').forEach((s) => out(`  ${s.state.padEnd(10)} ${s.id.padEnd(28)} ${s.url}`));
+        const n = (k: string) => st.filter((s) => s.state === k).length;
+        out(`${st.length} sources: ${n('human_verified')} human-verified, ${n('machine_verified')} machine-verified (awaiting human sign-off), ${n('partially_verified')} partially verified, ${n('stale')} stale, ${n('unverified')} unverified`);
+        out('Human sign-off backlog (most-cited first; open claims need a person to read the source):');
+        st.filter((s) => s.state !== 'human_verified').forEach((s) => out(`  ${s.state.padEnd(18)} ${s.id.padEnd(28)} cited by ${String(s.dependents).padStart(2)}${s.openClaims.length ? `  open: ${s.openClaims.join(', ')}` : ''}`));
         return;
       }
       if (sub === 'refresh') {
@@ -206,7 +212,8 @@ function summary(r: ReturnType<typeof runAssessment>, dir: string) {
   out(`  ${r.findings.length} findings: ${['critical', 'high', 'medium', 'low', 'info'].map((s) => `${r.findings.filter((f) => f.severity === s).length} ${s}`).join(', ')}`);
   if (blockers.length) { out(`  ${blockers.length} BLOCKER(S):`); blockers.slice(0, 8).forEach((f) => out(`    - ${f.id}: ${f.title}`)); }
   if (r.security) out(`  Control readiness ${Math.round(r.security.score.readiness * 100)}%, evidence coverage ${Math.round(r.security.score.evidenceCoverage * 100)}% (reported separately; not an audit opinion)`);
-  if (r.sources.unverified) out(`  ${r.sources.unverified} knowledge sources are unverified: see \`bcr sources status\`.`);
+  const sc = r.sources.counts;
+  out(`  Sources: ${sc.machine_verified} machine-verified, ${sc.partially_verified} partially verified, ${sc.human_verified} human-verified, ${sc.stale + sc.unverified} stale/unverified (see \`bcr sources status\`).`);
 }
 
 const OverridesFile = z.object({ overrides: z.array(z.object({ country: z.string(), action: z.enum(['CHALLENGE', 'MONITOR']), clients: z.array(z.enum(['web', 'ios', 'api'])), createdAt: z.string(), expiresAt: z.string(), renewals: z.number().int(), reason: z.string(), signalRef: z.string() })) });

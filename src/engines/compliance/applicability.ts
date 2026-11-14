@@ -4,7 +4,7 @@
 // never proof that a specific law applies; and a missing answer yields "uncertain", never "not applicable".
 import type { BusinessProfile, Tri } from '../../domain/schemas.js';
 
-export const APPLICABILITY_RULES_VERSION = '1.0.0';
+export const APPLICABILITY_RULES_VERSION = '1.1.0';
 
 export type Applicability = 'applicable' | 'not_applicable' | 'uncertain';
 export interface ApplicabilityResult {
@@ -19,12 +19,14 @@ export const EU_MEMBER_STATES = ['AT', 'BE', 'BG', 'HR', 'CY', 'CZ', 'DK', 'EE',
 const EEA = [...EU_MEMBER_STATES, 'IS', 'LI', 'NO'];
 
 /**
- * CCPA revenue threshold. The statutory base is $25,000,000, adjusted for CPI. $26,625,000 is the
- * adjusted figure recorded here from prior knowledge and is UNVERIFIED (see SRC-CA-CCPA). Revenue
- * between the two figures is reported as uncertain.
+ * CCPA revenue threshold (Civil Code 1798.140(d)(1)(A)), CPI-adjusted to $26,625,000 from
+ * 1 January 2025. Machine-verified against the CPPA's CPI adjustment page (SRC-CPPA-CPI) on
+ * 2026-11-14. The figure is adjusted periodically: CCPA_THRESHOLD_RECHECK_AFTER makes results say so
+ * once a new adjustment may be in force.
  */
-export const CCPA_REVENUE_BASE_USD = 25_000_000;
-export const CCPA_REVENUE_ADJUSTED_USD = 26_625_000;
+export const CCPA_REVENUE_THRESHOLD_USD = 26_625_000;
+export const CCPA_REVENUE_THRESHOLD_EFFECTIVE = '2025-01-01';
+export const CCPA_THRESHOLD_RECHECK_AFTER = '2027-01-01';
 export const CCPA_CONSUMER_THRESHOLD = 100_000;
 
 const r = (status: Applicability, reasoning: string[], counselQuestions: string[] = [], notes: string[] = []): ApplicabilityResult => ({ status, reasoning, counselQuestions, notes });
@@ -91,13 +93,14 @@ export const RULES: Record<string, Rule> = {
     if (!us && b.establishment.countries.length > 0 && b.targetMarkets.length > 0) return r('not_applicable', ['No US establishment or US target market, so the business is not doing business in California on the information given.']);
     const p = b.privacy;
     const reasons: string[] = [];
-    if (p.annualGrossRevenueUsd !== undefined && p.annualGrossRevenueUsd >= CCPA_REVENUE_ADJUSTED_USD) reasons.push(`Annual gross revenue of $${p.annualGrossRevenueUsd.toLocaleString('en-US')} exceeds the revenue threshold.`);
+    // The statute uses "exceeds": revenue exactly at the threshold does not meet it.
+    if (p.annualGrossRevenueUsd !== undefined && p.annualGrossRevenueUsd > CCPA_REVENUE_THRESHOLD_USD) reasons.push(`Annual gross revenue of $${p.annualGrossRevenueUsd.toLocaleString('en-US')} exceeds the $${CCPA_REVENUE_THRESHOLD_USD.toLocaleString('en-US')} threshold.`);
     if (p.caResidentsPersonalDataPerYear !== undefined && p.caResidentsPersonalDataPerYear >= CCPA_CONSUMER_THRESHOLD) reasons.push(`Personal information of ${p.caResidentsPersonalDataPerYear.toLocaleString('en-US')} California consumers/households meets the ${CCPA_CONSUMER_THRESHOLD.toLocaleString('en-US')} threshold.`);
     if (p.revenueShareFromSellingOrSharingData !== undefined && p.revenueShareFromSellingOrSharingData >= 0.5) reasons.push('At least 50% of revenue comes from selling or sharing personal information.');
-    if (reasons.length) return r('applicable', reasons, ['Confirm CCPA scope and any sector exemptions.']);
+    const thresholdNote = `Revenue threshold $${CCPA_REVENUE_THRESHOLD_USD.toLocaleString('en-US')} has applied since ${CCPA_REVENUE_THRESHOLD_EFFECTIVE} (CPPA CPI adjustment). It is adjusted periodically: re-check it after ${CCPA_THRESHOLD_RECHECK_AFTER}.`;
+    if (reasons.length) return r('applicable', reasons, ['Confirm CCPA scope and any sector exemptions.'], [thresholdNote]);
     const known = p.annualGrossRevenueUsd !== undefined && p.caResidentsPersonalDataPerYear !== undefined && (p.revenueShareFromSellingOrSharingData !== undefined || p.sellsOrSharesPersonalData === 'no');
-    if (known && p.annualGrossRevenueUsd! >= CCPA_REVENUE_BASE_USD) return r('uncertain', [`Revenue is between the statutory base ($${CCPA_REVENUE_BASE_USD.toLocaleString('en-US')}) and the recorded CPI-adjusted figure, which is unverified.`], ['What is the current CPI-adjusted CCPA revenue threshold?']);
-    if (known) return r('not_applicable', ['Below all three CCPA thresholds on the figures supplied. A user being in California is not by itself a trigger.'], [], ['Reassess yearly and when California consumer counts approach 100,000. Service-provider contracts may still impose CCPA terms.']);
+    if (known) return r('not_applicable', ['Below all three CCPA thresholds on the figures supplied. A user being in California is not by itself a trigger.'], [], [thresholdNote, 'Reassess yearly and when California consumer counts approach 100,000. Service-provider contracts may still impose CCPA terms.']);
     return r('uncertain', ['Revenue, California consumer count, or revenue share from selling/sharing data is not known.'], ['Do we meet any CCPA threshold?']);
   },
   'OB-US-STATE-PRIVACY': (b) => {
@@ -132,7 +135,11 @@ export const RULES: Record<string, Rule> = {
   },
   'OB-APPLE-ACCOUNT-DELETION': (b) => apple(b, b.ios.supportsAccountCreation, 'The app supports account creation, so it must offer in-app account deletion.', 'The app does not support account creation.', 'Whether the iOS app supports account creation is not known.'),
   'OB-APPLE-ATT': (b) => apple(b, b.ios.tracksPerAttDefinition, "The app tracks users as Apple defines tracking, so the ATT prompt is required.", "The app does not track users under Apple's definition. Re-check when adding advertising or analytics SDKs.", "Whether the app or its SDKs track users under Apple's definition is not known."),
-  'OB-APPLE-IAP': (b) => apple(b, b.ios.sellsDigitalGoodsOrSubscriptions, 'The iOS app sells digital goods or subscriptions. Purchase rules and regional exceptions must be checked against current Apple sources.', 'The iOS app does not sell digital goods or subscriptions.', 'Whether the iOS app sells digital goods or subscriptions is not known.'),
+  'OB-APPLE-IAP': (b) => {
+    const res = apple(b, b.ios.sellsDigitalGoodsOrSubscriptions, 'The iOS app sells digital goods or subscriptions, so Guideline 3.1.1 (in-app purchase) applies, subject to storefront-specific exceptions.', 'The iOS app does not sell digital goods or subscriptions.', 'Whether the iOS app sells digital goods or subscriptions is not known.');
+    if (res.status === 'applicable') res.notes.push('US storefront apps may include buttons, external links and calls to action to other purchase methods without an entitlement; other storefronts allow links only under StoreKit External Purchase Link entitlements where permitted. EU terms differ: check the current EU-specific guidance.');
+    return res;
+  },
   'OB-PCI-DSS': (b) => {
     const m = b.payments.method;
     if (m === 'none') return r('not_applicable', ['The business does not accept card payments.']);
@@ -189,15 +196,25 @@ export const RULES: Record<string, Rule> = {
     const euNexus = ai.outputUsedInEu === 'yes' || has(b.establishment.countries, EU_MEMBER_STATES) || has(b.targetMarkets, [...EU_MEMBER_STATES, 'EU']);
     if (ai.outputUsedInEu === 'no' && !has(b.establishment.countries, EU_MEMBER_STATES) && !has(b.targetMarkets, [...EU_MEMBER_STATES, 'EU'])) return r('not_applicable', ['AI is used, but there is no EU market, establishment, or use of its output in the EU.']);
     if (!euNexus) return r('uncertain', ['AI is used; whether its output is used in the EU is not known.']);
+    // Duties per Art. 50 and dates per Art. 113 as amended by Regulation (EU) 2026/1744
+    // (machine-verified 2026-11-14 against the official texts; see SRC-EU-AI-ACT, SRC-EU-AI-OMNIBUS).
+    const provider = ai.role === 'provider' || ai.role === 'both';
+    const deployer = ai.role === 'deployer' || ai.role === 'both';
     const duties: string[] = [];
-    if (ai.possibleHighRiskUseCase === 'yes') duties.push('A possible high-risk use case was reported: this needs classification before launch.');
-    if (ai.usersInteractWithAiSystem === 'yes') duties.push('Users interact directly with an AI system: a disclosure duty is likely unless it is obvious from context.');
-    if (ai.generatesSyntheticContent === 'yes') duties.push('The system generates synthetic content: marking or disclosure duties may apply, depending on your role.');
-    if (ai.role === 'unknown') duties.push('Your role (provider or deployer) is not recorded; duties differ between them.');
-    if (duties.length === 0 && ai.possibleHighRiskUseCase === 'no' && ai.usersInteractWithAiSystem === 'no' && ai.generatesSyntheticContent === 'no') {
-      return r('applicable', ['The Act is in scope territorially, but no specific transparency or high-risk trigger was reported. Many AI features carry no additional duty. Keep the AI inventory current.'], [], ['Prohibited practices apply to everyone in scope.']);
+    if (ai.possibleHighRiskUseCase === 'yes') duties.push('A possible high-risk use case was reported and needs classification. High-risk obligations apply from 2 December 2027 (Annex III uses) or 2 August 2028 (Annex I products), as amended by Regulation (EU) 2026/1744.');
+    if (ai.usersInteractWithAiSystem === 'yes') {
+      if (provider) duties.push('As a provider of a system people interact with directly, design it so they are told they are interacting with AI, unless that is obvious from context (Art. 50(1), applying since 2 August 2026).');
+      if (ai.role === 'deployer') duties.push('Users interact with an AI system you deploy. The Art. 50(1) interaction-disclosure duty falls on the provider of the system; confirm your vendor meets it. Deployer duties arise for emotion recognition or biometric categorisation (Art. 50(3)) and deepfakes (Art. 50(4)).');
     }
-    return r(duties.length ? 'applicable' : 'uncertain', ['There is an EU nexus and AI is used.', ...duties], ['What is our role for each AI feature, and which obligations and dates apply?']);
+    if (ai.generatesSyntheticContent === 'yes') {
+      if (provider) duties.push('As a provider of a system generating synthetic audio, image, video or text, mark outputs in a machine-readable, detectable way (Art. 50(2)). Systems placed on the market before 2 August 2026 have until 2 December 2026.');
+      if (deployer) duties.push('As a deployer, disclose deepfake image, audio or video content as artificially generated or manipulated (Art. 50(4)); text published to inform the public on matters of public interest can also require disclosure.');
+    }
+    if (ai.role === 'unknown') duties.push('Your role (provider or deployer) is not recorded; Art. 50 duties differ between them.');
+    if (duties.length === 0 && ai.possibleHighRiskUseCase === 'no' && ai.usersInteractWithAiSystem === 'no' && ai.generatesSyntheticContent === 'no') {
+      return r('applicable', ['The Act is in scope territorially, but no specific transparency or high-risk trigger was reported. Many AI features carry no additional duty. Keep the AI inventory current.'], [], ['Prohibited practices (Art. 5) apply to everyone in scope; new prohibitions added by Regulation (EU) 2026/1744 apply from 2 December 2026.']);
+    }
+    return r(duties.length ? 'applicable' : 'uncertain', ['There is an EU nexus and AI is used.', ...duties], ['What is our role for each AI feature, and which obligations and dates apply?'], ['Dates reflect the AI Act as amended by Regulation (EU) 2026/1744 (Digital Omnibus on AI).']);
   },
   'OB-HIPAA': (b) => {
     const role = b.sector.hipaaRole;
@@ -221,7 +238,7 @@ export const RULES: Record<string, Rule> = {
     const g = b.sector.glbaFinancialInstitution;
     const fin = b.dataClasses.includes('financial');
     if (g === 'yes') return r('applicable', ['The business reports being a financial institution under GLBA.'], ['Which GLBA rules apply to our activities?']);
-    if (g === 'no') return r('not_applicable', ['The business is not significantly engaged in financial activities. Using a payment processor or holding financial data does not by itself make GLBA apply.']);
+    if (g === 'no') return r('not_applicable', ['The business does not offer consumers financial products or services such as loans, financial or investment advice, or insurance (the FTC rules define this as being significantly engaged in financial activities). Using a payment processor or holding financial data does not by itself make GLBA apply.']);
     if (fin) return r('uncertain', ['Financial data is processed but whether the business is a "financial institution" under GLBA is not recorded.'], ['Are our activities "financial activities" under GLBA?']);
     if (dataUnknown(b)) return r('uncertain', ['Data classes and GLBA status are not recorded.']);
     return r('not_applicable', ['No financial data and no financial-institution activity reported.']);

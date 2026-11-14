@@ -186,3 +186,20 @@ test('alerts are dry-run by default, redacted, and deduplicated', async () => {
   const email = await deliverAlerts([{ ...alerts[0]!, dedupeKey: 'k2' }], { transport: 'email', send: true, env });
   assert.equal(email[0]!.status, 'not_implemented');
 });
+
+test('AWS WAF regions compile to a labeler rule plus label matching; CloudFront warns it fails open', () => {
+  const p = policy();
+  const a = checkApproval(p, approvals());
+  const aws = compile(p, a, [], 'aws-waf', { allowSynthetic: true });
+  const art = aws.artifact as { rules: Array<{ Name: string; Action: object; Statement: unknown }> };
+  assert.equal(art.rules[0]!.Name, 'bcr-geo-region-labels');
+  assert.deepEqual(art.rules[0]!.Action, { Count: {} });
+  assert.deepEqual((art.rules[0]!.Statement as { GeoMatchStatement: { CountryCodes: string[] } }).GeoMatchStatement.CountryCodes, ['UA']);
+  const crimea = JSON.stringify(art.rules.find((r) => r.Name === 'SAN-US-OFAC-UA-CRIMEA')!.Statement);
+  assert.match(crimea, /awswaf:clientip:geo:region:UA-43/);
+  assert.doesNotMatch(crimea, /GeoMatchStatement/, 'the region rule itself never matches the whole country');
+  assert.ok(aws.rules.find((r) => r.ruleId === 'SAN-US-OFAC-XX')!.warnings.some((w) => /unknown/.test(w)), 'XX collides with the AWS unknown-location label');
+  assert.ok(aws.gaps.some((g) => g.ruleId === 'SAN-US-OFAC-UA-DNR-LNR' && g.manualSteps.some((m) => /FAQ 1009/.test(m))));
+  const cf = compile(p, a, [], 'aws-cloudfront', { allowSynthetic: true });
+  assert.ok(cf.warnings.some((w) => /fails open/.test(w)));
+});

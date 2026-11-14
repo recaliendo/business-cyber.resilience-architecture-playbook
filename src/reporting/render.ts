@@ -6,6 +6,7 @@ import type { AssessmentResult } from '../assess.js';
 import { redact, redactDeep } from '../lib/redact.js';
 import { writeText } from '../lib/io.js';
 import { buildPrompt, promptPath, type PromptContext } from './prompts.js';
+import { SUPPORT_LABEL } from '../engines/compliance/compliance.js';
 
 export interface BundleOutput { dir: string; files: string[] }
 
@@ -52,7 +53,8 @@ export function renderMarkdown(r: AssessmentResult): string {
     if (r.intake.questions.length) { L.push('Questions that would unblock conclusions:', ...r.intake.questions.map((q) => `- **${q.question}** _(unblocks: ${q.blocks.join(', ')})_`), ''); }
   }
   if (r.review) L.push('Evidence boundary for the repository review:', ...r.review.evidenceBoundary.map((b) => `- ${b}`), '', 'Limitations:', ...r.review.limitations.map((b) => `- ${b}`), '');
-  L.push(`Sources: ${r.sources.verified} verified, ${r.sources.stale} stale, ${r.sources.unverified} unverified. Conclusions resting on unverified sources are marked low confidence.`, '');
+  const c = r.sources.counts;
+  L.push(`Sources (${r.sources.total}): ${c.human_verified} human-verified, ${c.machine_verified} machine-verified awaiting human sign-off, ${c.partially_verified} partially verified, ${c.stale} stale, ${c.unverified} unverified. Machine verification means a tool read the source and checked each claim our rules rely on; it is not legal review. Conclusions resting on partially verified, stale or unverified sources are marked low confidence.`, '');
 
   // ---------- Part 2: engineering detail ----------
   L.push('## Part 2: Engineering detail', '');
@@ -105,8 +107,8 @@ export function renderMarkdown(r: AssessmentResult): string {
 
   L.push('### 6. Legal, platform and contractual positioning', '');
   if (r.compliance) {
-    L.push('| Obligation | Category | Status | Reasoning | Sources verified |', '|---|---|---|---|---|');
-    for (const o of r.compliance.results.filter((x) => x.obligation.category !== 'voluntary')) L.push(`| ${cell(o.obligation.title)} | ${o.obligation.category} | **${o.status.replace('_', ' ')}** | ${cell(o.reasoning.join(' '))} | ${o.sourcesVerified ? 'yes' : 'no'} |`);
+    L.push('| Obligation | Category | Status | Reasoning | Source support |', '|---|---|---|---|---|');
+    for (const o of r.compliance.results.filter((x) => x.obligation.category !== 'voluntary')) L.push(`| ${cell(o.obligation.title)} | ${o.obligation.category} | **${o.status.replace('_', ' ')}** | ${cell(o.reasoning.join(' '))} | ${SUPPORT_LABEL[o.sourceSupport]} |`);
     L.push('', 'These are screening results for discussion with counsel, not legal conclusions.', '');
   } else L.push('_Not assessed._', '');
 
@@ -237,7 +239,7 @@ export function toJson(r: AssessmentResult): unknown {
     meta: r.meta,
     intake: r.intake ? { questions: r.intake.questions, assumptions: r.intake.assumptions, completeness: r.intake.completeness } : undefined,
     security: r.security ? { catalogVersion: r.security.catalogVersion, score: r.security.score, controls: r.security.results.map((c) => ({ id: c.control.id, title: c.control.title, state: c.state, provenance: c.provenance, evidenceIds: c.evidenceIds, evidenceAgeDays: c.evidenceAgeDays, stale: c.stale, justification: c.justification, notes: c.notes })), quickWins: r.security.quickWins, deferred: r.security.deferred } : undefined,
-    compliance: r.compliance ? { catalogVersion: r.compliance.catalogVersion, rulesVersion: r.compliance.rulesVersion, obligations: r.compliance.results.map((o) => ({ id: o.obligation.id, title: o.obligation.title, category: o.obligation.category, status: o.status, reasoning: o.reasoning, notes: o.notes, counselQuestions: o.counselQuestions, sourcesVerified: o.sourcesVerified, unverifiedSources: o.unverifiedSources, counselReview: o.obligation.counselReview })), soc2: r.compliance.soc2, counselQuestions: r.compliance.counselQuestions } : undefined,
+    compliance: r.compliance ? { catalogVersion: r.compliance.catalogVersion, rulesVersion: r.compliance.rulesVersion, obligations: r.compliance.results.map((o) => ({ id: o.obligation.id, title: o.obligation.title, category: o.obligation.category, status: o.status, reasoning: o.reasoning, notes: o.notes, counselQuestions: o.counselQuestions, sourceSupport: o.sourceSupport, weakSources: o.weakSources, counselReview: o.obligation.counselReview })), soc2: r.compliance.soc2, counselQuestions: r.compliance.counselQuestions } : undefined,
     capacity: r.capacity, infrastructure: r.infrastructure ? { ...r.infrastructure, findings: undefined } : undefined,
     geo: r.geo, review: r.review ? { ...r.review, findings: undefined } : undefined,
     sources: r.sources,

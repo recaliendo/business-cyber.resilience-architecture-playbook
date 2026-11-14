@@ -9,7 +9,8 @@ import { runCapacity, capacityFindings, type CapacityReport } from './engines/ca
 import { assessInfrastructure, type InfrastructureReport } from './engines/infrastructure/infrastructure.js';
 import { checkApproval, policyHash, type ApprovalCheck } from './engines/geo/policy.js';
 import { evaluateSignals, type ActiveOverride, type SignalDecision, type ThreatConfig, DEFAULT_THREAT_CONFIG } from './engines/geo/signals.js';
-import { sourceStatus, type SourceStatus } from './sources/sources.js';
+import { sourceStatus, countDependents, type SourceStatus, type SourceState } from './sources/sources.js';
+import { loadCapabilities } from './engines/geo/compiler.js';
 import type { RepositoryReview } from './review/review.js';
 import { buildRoadmap } from './reporting/roadmap.js';
 import { hashValue } from './lib/hash.js';
@@ -28,7 +29,7 @@ export interface AssessmentResult {
   infrastructure?: InfrastructureReport;
   geo?: GeoReport;
   review?: RepositoryReview;
-  sources: { unverified: number; stale: number; verified: number; backlog: SourceStatus[] };
+  sources: { counts: Record<SourceState, number>; total: number; backlog: SourceStatus[] };
   findings: Finding[];
   roadmap: RoadmapItem[];
 }
@@ -45,11 +46,15 @@ export function runAssessment(input: { intake?: Intake; review?: RepositoryRevie
       ruleVersions: { controls: controls.version, obligations: obligations.version, sources: sources.version },
       title: input.intake ? `Cyber resilience assessment: ${input.intake.business.name}` : input.review ? `Repository review: ${input.review.github ? `${input.review.github.owner}/${input.review.github.repo}` : input.review.path}` : 'Assessment',
     },
-    sources: { unverified: 0, stale: 0, verified: 0, backlog: [] },
+    sources: { counts: { human_verified: 0, machine_verified: 0, partially_verified: 0, stale: 0, unverified: 0 }, total: 0, backlog: [] },
     findings: [], roadmap: [],
   };
-  const st = sourceStatus(sources, now);
-  result.sources = { unverified: st.filter((s) => s.state === 'unverified').length, stale: st.filter((s) => s.state === 'stale').length, verified: st.filter((s) => s.state === 'verified').length, backlog: st.filter((s) => s.state !== 'verified') };
+  const dependents = countDependents([...obligations.obligations.map((o) => o.sourceIds), ...Object.values(loadCapabilities().providers).map((p) => p.sourceIds)]);
+  const st = sourceStatus(sources, now, dependents);
+  const counts = { human_verified: 0, machine_verified: 0, partially_verified: 0, stale: 0, unverified: 0 } as Record<SourceState, number>;
+  for (const s of st) counts[s.state] += 1;
+  // Backlog: everything not yet signed off by a person, most-cited first.
+  result.sources = { counts, total: st.length, backlog: st.filter((s) => s.state !== 'human_verified') };
 
   let quickWins: string[] = [];
   const stage = input.intake?.business.stage ?? 'launch';
@@ -60,7 +65,7 @@ export function runAssessment(input: { intake?: Intake; review?: RepositoryRevie
     result.meta.ruleVersions.scoring = result.security.score.version;
     quickWins = result.security.quickWins.controls;
     findings.push(...result.security.findings);
-    result.compliance = assessCompliance(intake.business, obligations, sources, result.security.results, result.security.score);
+    result.compliance = assessCompliance(intake.business, obligations, sources, result.security.results, result.security.score, now);
     result.meta.ruleVersions.applicability = result.compliance.rulesVersion;
     findings.push(...result.compliance.findings);
     if (intake.workload) {

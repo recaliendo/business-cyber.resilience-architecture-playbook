@@ -6,15 +6,41 @@ import { isIP } from 'node:net';
 import type { SourceRecord, SourceRegistry } from '../domain/schemas.js';
 import { sha256 } from '../lib/hash.js';
 
-export interface SourceStatus { id: string; title: string; url: string; state: 'verified' | 'stale' | 'unverified'; dueSince?: string; reason: string }
+/**
+ * human_verified     a named person signed off and every claim is confirmed
+ * machine_verified   a tool read the source and every claim is confirmed; awaiting human sign-off
+ * partially_verified the source was read but at least one claim is partial or not confirmed
+ * stale              verification is older than the review cadence
+ * unverified         never verified
+ * Only human_verified counts as reviewed by a person.
+ */
+export type SourceState = 'human_verified' | 'machine_verified' | 'partially_verified' | 'stale' | 'unverified';
+export interface SourceStatus {
+  id: string; title: string; url: string; state: SourceState; dueSince?: string; reason: string;
+  openClaims: string[]; dependents: number;
+}
 
-export function sourceStatus(reg: SourceRegistry, now: Date): SourceStatus[] {
-  return reg.sources.map((s) => {
-    if (!s.verifiedAt) return { id: s.id, title: s.title, url: s.url, state: 'unverified', reason: 'Never verified by a person. Rules citing it are reported as unverified.' };
+/** Rank weight used to order the human sign-off backlog: rules depending on the source come first. */
+export function sourceStatus(reg: SourceRegistry, now: Date, dependents: Map<string, number> = new Map()): SourceStatus[] {
+  const rows = reg.sources.map((s): SourceStatus => {
+    const base = { id: s.id, title: s.title, url: s.url, dependents: dependents.get(s.id) ?? 0 };
+    const openClaims = s.claims.filter((c) => c.status === 'partial' || c.status === 'not_confirmed').map((c) => c.id);
+    if (!s.verifiedAt) return { ...base, state: 'unverified', openClaims, reason: 'Never verified. Rules citing it are reported as resting on unverified sources.' };
     const due = new Date(Date.parse(s.verifiedAt) + s.reviewCadenceDays * 86_400_000);
-    if (due < now) return { id: s.id, title: s.title, url: s.url, state: 'stale', dueSince: due.toISOString().slice(0, 10), reason: `Re-verification was due on ${due.toISOString().slice(0, 10)} (every ${s.reviewCadenceDays} days).` };
-    return { id: s.id, title: s.title, url: s.url, state: 'verified', reason: `Verified ${s.verifiedAt.slice(0, 10)} by ${s.verifiedBy ?? 'unknown'}.` };
+    if (due < now) return { ...base, state: 'stale', openClaims, dueSince: due.toISOString().slice(0, 10), reason: `Re-verification was due on ${due.toISOString().slice(0, 10)} (every ${s.reviewCadenceDays} days).` };
+    if (openClaims.length) return { ...base, state: 'partially_verified', openClaims, reason: `Read on ${s.verifiedAt.slice(0, 10)}; ${openClaims.length} claim(s) could not be confirmed: ${openClaims.join(', ')}.` };
+    if (s.verificationMethod === 'human') return { ...base, state: 'human_verified', openClaims, reason: `Signed off ${s.verifiedAt.slice(0, 10)} by ${s.verifiedBy}.` };
+    return { ...base, state: 'machine_verified', openClaims, reason: `Machine-verified ${s.verifiedAt.slice(0, 10)} (${s.verifiedBy}); awaiting human sign-off.` };
   });
+  const order: Record<SourceState, number> = { stale: 0, unverified: 1, partially_verified: 2, machine_verified: 3, human_verified: 4 };
+  return rows.sort((a, b) => order[a.state] - order[b.state] || b.dependents - a.dependents || a.id.localeCompare(b.id));
+}
+
+/** How many obligations and provider capabilities cite each source. */
+export function countDependents(citations: string[][]): Map<string, number> {
+  const m = new Map<string, number>();
+  for (const ids of citations) for (const id of new Set(ids)) m.set(id, (m.get(id) ?? 0) + 1);
+  return m;
 }
 
 /** Reject private, loopback, link-local and other non-public addresses. */

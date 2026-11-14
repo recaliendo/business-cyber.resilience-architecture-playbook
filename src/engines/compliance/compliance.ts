@@ -4,11 +4,25 @@ import type { BusinessProfile, Finding, ObligationCatalog, ObligationDef, Source
 import { makeFinding } from '../../domain/findings.js';
 import type { ControlResult } from '../../evidence/scoring.js';
 import { RULES, APPLICABILITY_RULES_VERSION, type ApplicabilityResult } from './applicability.js';
+import { sourceStatus, type SourceState } from '../../sources/sources.js';
+
+/** Weakest verification level across an obligation's cited sources. */
+export type SourceSupport = 'human_verified' | 'machine_verified' | 'partially_verified' | 'unverified';
+const SUPPORT_RANK: Record<SourceSupport, number> = { unverified: 0, partially_verified: 1, machine_verified: 2, human_verified: 3 };
+const toSupport = (s: SourceState | undefined): SourceSupport => (s === 'human_verified' || s === 'machine_verified' || s === 'partially_verified' ? s : 'unverified');
+
+export const SUPPORT_LABEL: Record<SourceSupport, string> = {
+  human_verified: 'human-verified',
+  machine_verified: 'machine-verified (awaiting human sign-off)',
+  partially_verified: 'partially verified',
+  unverified: 'unverified or stale',
+};
 
 export interface ObligationResult extends ApplicabilityResult {
   obligation: ObligationDef;
-  sourcesVerified: boolean;
-  unverifiedSources: string[];
+  sourceSupport: SourceSupport;
+  /** Cited sources that are not at least machine-verified with every claim confirmed. */
+  weakSources: string[];
   relatedControlStates: Array<{ controlId: string; state: string }>;
 }
 
@@ -34,17 +48,21 @@ export interface ComplianceReport {
 export function assessCompliance(
   b: BusinessProfile, catalog: ObligationCatalog, sources: SourceRegistry, controls: ControlResult[],
   scores: { readiness: number; evidenceCoverage: number },
+  now: Date = new Date(),
 ): ComplianceReport {
   const srcById = new Map(sources.sources.map((s) => [s.id, s]));
+  const srcState = new Map(sourceStatus(sources, now).map((s) => [s.id, s.state]));
   const stateById = new Map(controls.map((c) => [c.control.id, c.state]));
   const results: ObligationResult[] = catalog.obligations.map((ob) => {
     const rule = RULES[ob.id];
     const res: ApplicabilityResult = rule
       ? rule(b)
       : { status: 'uncertain', reasoning: ['No applicability rule is implemented for this obligation yet.'], counselQuestions: [], notes: [] };
-    const unverified = ob.sourceIds.filter((id) => !srcById.get(id)?.verifiedAt);
+    const levels = ob.sourceIds.map((id) => toSupport(srcState.get(id)));
+    const sourceSupport = levels.reduce<SourceSupport>((w, l) => (SUPPORT_RANK[l] < SUPPORT_RANK[w] ? l : w), 'human_verified');
+    const weakSources = ob.sourceIds.filter((id) => SUPPORT_RANK[toSupport(srcState.get(id))] < SUPPORT_RANK.machine_verified);
     return {
-      ...res, obligation: ob, sourcesVerified: unverified.length === 0, unverifiedSources: unverified,
+      ...res, obligation: ob, sourceSupport, weakSources,
       relatedControlStates: ob.relatedControls.map((id) => ({ controlId: id, state: stateById.get(id) ?? 'unknown' })),
     };
   });
@@ -63,7 +81,9 @@ export function assessCompliance(
       // Implementation of legal/platform obligations isn't evidenced by this intake, so an applicable
       // launch-blocking obligation stays a blocker until its evidence is recorded.
       launchBlocker: applicable && ob.launchBlockerIfApplicable,
-      confidence: r.sourcesVerified ? 'medium' : 'low', status: applicable ? 'requires_verification' : 'suspected',
+      // Screening rules never reach "high" confidence: applicability still needs counsel.
+      confidence: SUPPORT_RANK[r.sourceSupport] >= SUPPORT_RANK.machine_verified ? 'medium' : 'low',
+      status: applicable ? 'requires_verification' : 'suspected',
       provenance: 'inferred', evidenceLevel: 'self_reported',
       observed: r.reasoning.join(' '),
       expected: applicable ? `Required artefacts in place: ${ob.requiredEvidence.join('; ') || 'see obligation'}.` : 'Applicability determined, with reasoning recorded.',
@@ -72,7 +92,8 @@ export function assessCompliance(
       insights: [...r.notes, ...(gaps.length ? [`Related controls not met: ${gaps.map((g) => `${g.controlId} (${g.state})`).join(', ')}.`] : [])],
       limitations: [
         'Screening result, not legal advice.',
-        ...(r.sourcesVerified ? [] : [`Supporting sources not yet verified: ${r.unverifiedSources.join(', ')}.`]),
+        `Supporting sources: ${SUPPORT_LABEL[r.sourceSupport]}.`,
+        ...(r.weakSources.length ? [`Sources with open or unverified claims: ${r.weakSources.join(', ')}.`] : []),
       ],
       references: ob.sourceIds.map((id) => ({ title: srcById.get(id)?.title ?? id, url: srcById.get(id)?.url ?? '', sourceId: id })),
       remediation: { summary: ob.remediation, steps: ob.counselReview ? ['Confirm applicability with counsel before relying on this result.'] : [] },

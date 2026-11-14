@@ -26,6 +26,16 @@ A typed approver name is never treated as proof. Approval binds to the content h
 - Selectors are ISO 3166-1 countries, ISO 3166-2 subdivisions, or **legally described territories**.
 - A territory that does not map exactly to codes needs a counsel-agreed approximation (`approximateSubdivisions` + `counselReviewed: true`). Without one, the compiler reports a gap with manual steps. It never widens the rule to the whole country.
 - If a provider cannot match subdivisions (CloudFront, App Store), the rule becomes a gap, not a country block.
+- Example: OFAC FAQ 1009 confirms that EO 14065 does **not** cover the entire Donetsk and Luhansk oblasts, so oblast codes are too broad for that rule. It also says US persons may reasonably rely on vetted third-party data such as postal codes and maps, so check billing and shipping postal codes at signup and payment where edge matching is too coarse.
+
+### Provider behaviour (machine-verified 2026-11-14)
+
+| Provider | Countries | Regions | Notes |
+|---|---|---|---|
+| Cloudflare WAF | `ip.src.country` | `ip.src.subdivision_1_iso_code` on Business or Enterprise plans | Log action is Enterprise-only; challenges work for browsers only |
+| AWS WAF | GeoMatchStatement | A Count geo-match rule adds labels, then a label match on `awswaf:clientip:geo:region:<CC>-<RR>` (the compiler emits both) | Unknown locations are labelled `XX` |
+| CloudFront | Whole-distribution allow or block list | No | **Fails open**: content is served when the location is unknown, and blocked requests never reach WAF. Not sufficient alone for sanctions |
+| App Store | Territory availability | No | Distribution only; not runtime enforcement |
 
 ## Threat signals: thresholds and safeguards (defaults in `src/engines/geo/signals.ts`)
 
@@ -55,7 +65,8 @@ Geo controls reduce noise and are easily bypassed with VPNs and proxies. Pair th
 
 - What is implemented: a normalized, dated, checksummed snapshot format; semantic diffs; deduplicated proposals that require approval; and failure handling that keeps the last approved policy.
 - What is **not** implemented: automatic extraction from official program pages or legal acts. A person maintains the snapshot from official sources. Name lists (SDN and consolidated lists) are person and entity lists, not geographic bans.
-- OpenSanctions may help normalize data, subject to its licence and verification against official sources.
+- **UK:** since 28 January 2026 the FCDO's UK Sanctions List is the only source of UK designations. The OFSI Consolidated List is closed and no longer updated. Screening systems must use the UK Sanctions List.
+- OpenSanctions may help normalize data. Its data is CC BY-NC 4.0, so commercial use needs a licence, and it must be checked against official sources.
 
 ## Alerts
 

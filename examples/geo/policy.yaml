@@ -2,7 +2,9 @@
 # - "XX" is a user-assigned ISO 3166 code used here as a stand-in for a comprehensively sanctioned
 #   jurisdiction. Real entries must come from official sources with counsel review.
 # - The Ukraine entries show how legally described REGIONAL restrictions are modelled: they must
-#   never become a whole-country block. Wording and code mappings are illustrative only.
+#   never become a whole-country block. Wording and code mappings are illustrative only. OFAC FAQ 1009
+#   (SRC-OFAC-FAQ-1009) confirms EO 14065 does not cover the entire Donetsk and Luhansk oblasts.
+# - On AWS WAF, XX is the label for an unknown location, so the XX stand-in is flagged when compiled there.
 # Every rule is marked synthetic: true, so `bcr enforce plan` refuses it without --allow-synthetic.
 policyId: example-geo-policy
 version: 3
@@ -47,11 +49,11 @@ rules:
       country: UA
       legalDescription: "SYNTHETIC wording: the so-called DNR and LNR regions as described in the relevant program; boundaries do not match oblast codes."
       approximateSubdivisions: []
-      mappingNote: "No agreed approximation yet: oblast codes UA-14/UA-09 are broader than the legal description."
+      mappingNote: "No agreed approximation yet: oblast codes UA-14/UA-09 are broader than the legal description (OFAC FAQ 1009)."
     action: BLOCK
     reason: Shows a rule that cannot be compiled to edge rules without a counsel-agreed mapping.
     legalBasis: "SYNTHETIC: cite the program and section here."
-    sourceRefs: [SRC-OFAC-PROGRAMS]
+    sourceRefs: [SRC-OFAC-UKRAINE, SRC-OFAC-FAQ-1009]
     confidence: medium
     dateAdded: "2026-08-01"
     effectiveDate: "2026-08-01"

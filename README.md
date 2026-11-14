@@ -7,7 +7,7 @@ Two tools in one repository, for solo founders and small teams launching iOS and
 
 The consultant runs offline, needs no accounts or credentials, and never deploys, sends or changes anything on its own.
 
-> Screening tool, not legal advice or an audit. Reports never claim that a business is compliant, "SOC 2 certified", or protected at runtime. Every legal and vendor source behind the rules is currently **unverified** (see [source governance](docs/consultant/source-governance.md)).
+> Screening tool, not legal advice or an audit. Reports never claim that a business is compliant, "SOC 2 certified", or protected at runtime. All 46 legal and vendor sources behind the rules were **machine-verified** on 2026-11-14, claim by claim. That is not human or legal review, and a few claims remain open (see [source governance](docs/consultant/source-governance.md)).
 
 ## Quick start (5 minutes, no credentials)
 
