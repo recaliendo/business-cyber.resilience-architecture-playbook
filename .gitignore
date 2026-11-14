@@ -1,2 +1,21 @@
+# OS / editor
 .DS_Store
 Thumbs.db
+.vscode/*
+!.vscode/extensions.json
+
+# Secrets: never commit real values (see docs/secrets-management.md)
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+
+# Dependencies / build / local tooling
+node_modules/
+dist/
+build/
+.netlify/
+*.log

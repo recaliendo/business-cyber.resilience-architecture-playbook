@@ -18,9 +18,12 @@ create policy "Users can insert their own projects"
   on public.projects for insert
   with check (auth.uid() = owner_id);
 
+-- WITH CHECK is required on every UPDATE policy. USING only filters which rows you may touch;
+-- without WITH CHECK a user can rewrite owner_id and hand the row to someone else.
 create policy "Users can update their own projects"
   on public.projects for update
-  using (auth.uid() = owner_id);
+  using (auth.uid() = owner_id)
+  with check (auth.uid() = owner_id);
 
 create policy "Users can delete their own projects"
   on public.projects for delete
