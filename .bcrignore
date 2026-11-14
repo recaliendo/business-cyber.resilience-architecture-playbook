@@ -1,0 +1,6 @@
+# Paths excluded from `bcr review` of THIS repository. Each exclusion is reported as a limitation.
+# Deliberately insecure synthetic fixtures used by tests and the demo:
+examples/repos/
+# Test files that contain fake secrets to exercise redaction:
+tests/e2e-and-safety.test.ts
+tests/geo.test.ts

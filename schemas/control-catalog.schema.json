@@ -1,0 +1,183 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "version": {
+      "type": "string"
+    },
+    "controls": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[A-Z]{2,5}-\\d{2,3}$"
+          },
+          "title": {
+            "type": "string"
+          },
+          "domain": {
+            "type": "string",
+            "enum": [
+              "identity_access",
+              "change_management",
+              "logging_monitoring",
+              "vulnerability_management",
+              "data_protection",
+              "resilience",
+              "vendor_management",
+              "policy",
+              "endpoint",
+              "evidence",
+              "privacy"
+            ]
+          },
+          "description": {
+            "type": "string"
+          },
+          "minStage": {
+            "type": "string",
+            "enum": [
+              "prelaunch",
+              "launch",
+              "early_production",
+              "growth",
+              "enterprise_global"
+            ]
+          },
+          "weight": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 5
+          },
+          "severityIfUnmet": {
+            "type": "string",
+            "enum": [
+              "critical",
+              "high",
+              "medium",
+              "low",
+              "info"
+            ]
+          },
+          "blockerIfUnmet": {
+            "default": false,
+            "type": "boolean"
+          },
+          "quickWin": {
+            "default": false,
+            "type": "boolean"
+          },
+          "effortHours": {
+            "type": "object",
+            "properties": {
+              "low": {
+                "type": "number",
+                "minimum": 0
+              },
+              "high": {
+                "type": "number",
+                "minimum": 0
+              }
+            },
+            "required": [
+              "low",
+              "high"
+            ]
+          },
+          "costUsd": {
+            "type": "object",
+            "properties": {
+              "low": {
+                "type": "number",
+                "minimum": 0
+              },
+              "high": {
+                "type": "number",
+                "minimum": 0
+              }
+            },
+            "required": [
+              "low",
+              "high"
+            ]
+          },
+          "ownerRole": {
+            "type": "string"
+          },
+          "evidenceRequired": {
+            "minItems": 1,
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "evidenceMaxAgeDays": {
+            "type": "integer",
+            "exclusiveMinimum": 0,
+            "maximum": 9007199254740991
+          },
+          "soloFounderAlternative": {
+            "type": "string"
+          },
+          "remediation": {
+            "type": "string"
+          },
+          "validation": {
+            "type": "string"
+          },
+          "dependsOn": {
+            "default": [],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "informationalMappings": {
+            "default": {
+              "soc2Tsc": [],
+              "iso27001Annex": []
+            },
+            "type": "object",
+            "properties": {
+              "soc2Tsc": {
+                "default": [],
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "iso27001Annex": {
+                "default": [],
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "domain",
+          "description",
+          "minStage",
+          "weight",
+          "severityIfUnmet",
+          "effortHours",
+          "ownerRole",
+          "evidenceRequired",
+          "evidenceMaxAgeDays",
+          "remediation",
+          "validation"
+        ]
+      }
+    }
+  },
+  "required": [
+    "version",
+    "controls"
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "regime": "US-OFAC",
+  "sourceIds": ["SRC-OFAC-PROGRAMS"],
+  "asOf": "2026-11-14",
+  "preparedBy": "SYNTHETIC example: maintained by a person from official program pages",
+  "entries": [
+    { "key": "XX", "selector": { "type": "country", "code": "XX" }, "restriction": "comprehensive", "legalBasis": "SYNTHETIC program reference" },
+    { "key": "UA-CRIMEA", "selector": { "type": "territory", "country": "UA", "legalDescription": "SYNTHETIC wording: the Crimea region of Ukraine", "approximateSubdivisions": ["UA-43", "UA-40"], "mappingNote": "synthetic" }, "restriction": "regional", "legalBasis": "SYNTHETIC program reference" },
+    { "key": "XY", "selector": { "type": "country", "code": "XY" }, "restriction": "sectoral_review", "legalBasis": "SYNTHETIC new program reference: counsel to assess whether it restricts our service" }
+  ]
+}

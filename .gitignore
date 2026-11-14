@@ -19,3 +19,10 @@ dist/
 build/
 .netlify/
 *.log
+
+# Consultant: assessments and reports describe your weaknesses; keep them out of git
+assessments/
+reports/
+.bcr/
+coverage/
+

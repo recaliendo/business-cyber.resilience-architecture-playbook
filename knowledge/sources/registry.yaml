@@ -1,0 +1,58 @@
+# Source registry. Every rule in knowledge/ cites sources from here.
+#
+# IMPORTANT: verifiedAt is null for every entry. These URLs were recorded from prior knowledge and
+# have NOT been fetched or checked by a person. Until someone verifies a source and fills in
+# verifiedAt, verifiedBy, retrievedAt and contentHash, every rule depending on it is reported as
+# "unverified". Run `bcr sources status` for the backlog and docs/consultant/source-governance.md
+# for the procedure. Never fill in a verification date you did not perform.
+version: "1.0.0"
+sources:
+  # ---- privacy ----
+  - { id: SRC-GDPR, publisher: European Union, title: "Regulation (EU) 2016/679 (GDPR)", url: "https://eur-lex.europa.eu/eli/reg/2016/679/oj", topic: privacy, jurisdiction: EU, official: true, effectiveDate: "2018-05-25", reviewCadenceDays: 365 }
+  - { id: SRC-EDPB-TERRITORIAL, publisher: European Data Protection Board, title: "Guidelines 3/2018 on the territorial scope of the GDPR (Article 3)", url: "https://www.edpb.europa.eu/our-work-tools/our-documents/guidelines/guidelines-32018-territorial-scope-gdpr-article-3-version_en", topic: privacy, jurisdiction: EU, official: true, reviewCadenceDays: 365 }
+  - { id: SRC-ICO-UKGDPR, publisher: UK Information Commissioner's Office, title: "UK GDPR guidance and resources", url: "https://ico.org.uk/for-organisations/uk-gdpr-guidance-and-resources/", topic: privacy, jurisdiction: UK, official: true, reviewCadenceDays: 180 }
+  - { id: SRC-CA-CCPA, publisher: California Attorney General, title: "California Consumer Privacy Act (CCPA)", url: "https://oag.ca.gov/privacy/ccpa", topic: privacy, jurisdiction: US-CA, official: true, reviewCadenceDays: 180, notes: "Monetary thresholds are CPI-adjusted; confirm the current figure." }
+  - { id: SRC-CPPA-REGS, publisher: California Privacy Protection Agency, title: "CCPA regulations", url: "https://cppa.ca.gov/regulations/", topic: privacy, jurisdiction: US-CA, official: true, reviewCadenceDays: 180 }
+  - { id: SRC-US-STATE-TRACKER, publisher: IAPP, title: "US State Privacy Legislation Tracker", url: "https://iapp.org/resources/article/us-state-privacy-legislation-tracker/", topic: privacy, jurisdiction: US, official: false, reviewCadenceDays: 90, notes: "Secondary source used for orientation only; confirm against each state's statute." }
+  - { id: SRC-LGPD, publisher: "Autoridade Nacional de Proteção de Dados (Brazil)", title: "ANPD: LGPD resources", url: "https://www.gov.br/anpd/pt-br", topic: privacy, jurisdiction: BR, official: true, reviewCadenceDays: 365 }
+  # ---- Apple ----
+  - { id: SRC-APPLE-REVIEW, publisher: Apple, title: "App Review Guidelines", url: "https://developer.apple.com/app-store/review/guidelines/", topic: platform, jurisdiction: global, official: true, reviewCadenceDays: 90 }
+  - { id: SRC-APPLE-PRIVACY-DETAILS, publisher: Apple, title: "App privacy details on the App Store", url: "https://developer.apple.com/app-store/app-privacy-details/", topic: platform, jurisdiction: global, official: true, reviewCadenceDays: 90 }
+  - { id: SRC-APPLE-PRIVACY-MANIFEST, publisher: Apple, title: "Privacy manifest files", url: "https://developer.apple.com/documentation/bundleresources/privacy-manifest-files", topic: platform, jurisdiction: global, official: true, reviewCadenceDays: 90 }
+  - { id: SRC-APPLE-ACCOUNT-DELETION, publisher: Apple, title: "Offering account deletion in your app", url: "https://developer.apple.com/support/offering-account-deletion-in-your-app/", topic: platform, jurisdiction: global, official: true, reviewCadenceDays: 90 }
+  - { id: SRC-APPLE-ATT, publisher: Apple, title: "User privacy and data use (App Tracking Transparency)", url: "https://developer.apple.com/app-store/user-privacy-and-data-use/", topic: platform, jurisdiction: global, official: true, reviewCadenceDays: 90 }
+  # ---- payments ----
+  - { id: SRC-PCI-SSC, publisher: PCI Security Standards Council, title: "PCI DSS document library (standard and SAQs)", url: "https://www.pcisecuritystandards.org/document_library/", topic: payments, jurisdiction: global, official: true, reviewCadenceDays: 180 }
+  - { id: SRC-STRIPE-SECURITY, publisher: Stripe, title: "Integration security guide", url: "https://docs.stripe.com/security/guide", topic: payments, jurisdiction: global, official: true, reviewCadenceDays: 180 }
+  # ---- children ----
+  - { id: SRC-FTC-COPPA, publisher: US Federal Trade Commission, title: "Children's Online Privacy Protection Rule (COPPA)", url: "https://www.ftc.gov/legal-library/browse/rules/childrens-online-privacy-protection-rule-coppa", topic: children, jurisdiction: US, official: true, reviewCadenceDays: 180 }
+  - { id: SRC-ICO-AADC, publisher: UK Information Commissioner's Office, title: "Age appropriate design code (Children's code)", url: "https://ico.org.uk/for-organisations/uk-gdpr-guidance-and-resources/childrens-information/childrens-code-guidance-and-resources/", topic: children, jurisdiction: UK, official: true, reviewCadenceDays: 365 }
+  # ---- accessibility ----
+  - { id: SRC-EAA, publisher: European Union, title: "Directive (EU) 2019/882 (European Accessibility Act)", url: "https://eur-lex.europa.eu/eli/dir/2019/882/oj", topic: accessibility, jurisdiction: EU, official: true, effectiveDate: "2025-06-28", reviewCadenceDays: 365, notes: "Applied through national laws; check the member states you serve." }
+  - { id: SRC-ADA-WEB, publisher: US Department of Justice, title: "Guidance on web accessibility and the ADA", url: "https://www.ada.gov/resources/web-guidance/", topic: accessibility, jurisdiction: US, official: true, reviewCadenceDays: 365 }
+  - { id: SRC-WCAG22, publisher: W3C, title: "Web Content Accessibility Guidelines (WCAG) 2.2", url: "https://www.w3.org/TR/WCAG22/", topic: accessibility, jurisdiction: global, official: true, reviewCadenceDays: 365 }
+  # ---- AI ----
+  - { id: SRC-EU-AI-ACT, publisher: European Union, title: "Regulation (EU) 2024/1689 (AI Act)", url: "https://eur-lex.europa.eu/eli/reg/2024/1689/oj", topic: ai, jurisdiction: EU, official: true, reviewCadenceDays: 90, notes: "Obligations phase in over several years; confirm which dates apply to your role." }
+  # ---- sector ----
+  - { id: SRC-HHS-HIPAA, publisher: US Department of Health and Human Services, title: "HIPAA: covered entities and business associates", url: "https://www.hhs.gov/hipaa/for-professionals/covered-entities/index.html", topic: sector, jurisdiction: US, official: true, reviewCadenceDays: 365 }
+  - { id: SRC-ED-FERPA, publisher: US Department of Education, title: "Student Privacy Policy Office (FERPA)", url: "https://studentprivacy.ed.gov/", topic: sector, jurisdiction: US, official: true, reviewCadenceDays: 365 }
+  - { id: SRC-FTC-GLBA, publisher: US Federal Trade Commission, title: "Gramm-Leach-Bliley Act guidance", url: "https://www.ftc.gov/business-guidance/privacy-security/gramm-leach-bliley-act", topic: sector, jurisdiction: US, official: true, reviewCadenceDays: 365 }
+  # ---- attestations ----
+  - { id: SRC-AICPA-SOC2, publisher: AICPA & CIMA, title: "SOC 2: SOC for Service Organizations", url: "https://www.aicpa-cima.com/topic/audit-assurance/audit-and-assurance-greater-than-soc-2", topic: attestation, jurisdiction: global, official: true, reviewCadenceDays: 365 }
+  - { id: SRC-ISO-27001, publisher: ISO, title: "ISO/IEC 27001 Information security management systems", url: "https://www.iso.org/standard/27001", topic: attestation, jurisdiction: global, official: true, reviewCadenceDays: 365 }
+  # ---- sanctions ----
+  - { id: SRC-OFAC-PROGRAMS, publisher: US Treasury OFAC, title: "Sanctions programs and country information", url: "https://ofac.treasury.gov/sanctions-programs-and-country-information", topic: sanctions, jurisdiction: US, official: true, reviewCadenceDays: 1 }
+  - { id: SRC-OFAC-SLS, publisher: US Treasury OFAC, title: "Sanctions List Service", url: "https://sanctionslist.ofac.treas.gov/", topic: sanctions, jurisdiction: US, official: true, reviewCadenceDays: 1, notes: "Name lists. A list entry is not a geographic service restriction." }
+  - { id: SRC-EU-SANCTIONS-MAP, publisher: European Union, title: "EU Sanctions Map", url: "https://www.sanctionsmap.eu/", topic: sanctions, jurisdiction: EU, official: true, reviewCadenceDays: 1, notes: "Orientation tool; the legal acts on EUR-Lex are authoritative." }
+  - { id: SRC-UK-SANCTIONS, publisher: UK Government, title: "UK sanctions regimes", url: "https://www.gov.uk/government/collections/uk-sanctions-regimes", topic: sanctions, jurisdiction: UK, official: true, reviewCadenceDays: 1 }
+  - { id: SRC-UK-OFSI, publisher: UK Office of Financial Sanctions Implementation, title: "OFSI guidance", url: "https://www.gov.uk/government/organisations/office-of-financial-sanctions-implementation", topic: sanctions, jurisdiction: UK, official: true, reviewCadenceDays: 30 }
+  - { id: SRC-OPENSANCTIONS, publisher: OpenSanctions, title: "OpenSanctions datasets", url: "https://www.opensanctions.org/", topic: sanctions, jurisdiction: global, official: false, reviewCadenceDays: 30, license: "Check licence terms; commercial use may need a licence.", notes: "Supplementary normalisation only; verify against official sources." }
+  # ---- geo / threat ----
+  - { id: SRC-EU-GEOBLOCKING, publisher: European Union, title: "Regulation (EU) 2018/302 on unjustified geo-blocking", url: "https://eur-lex.europa.eu/eli/reg/2018/302/oj", topic: geo, jurisdiction: EU, official: true, reviewCadenceDays: 365, notes: "Has a defined scope, exclusions and justified exceptions." }
+  - { id: SRC-CLOUDFLARE-WAF, publisher: Cloudflare, title: "WAF custom rules", url: "https://developers.cloudflare.com/waf/custom-rules/", topic: geo, jurisdiction: global, official: true, reviewCadenceDays: 90 }
+  - { id: SRC-AWS-WAF-GEO, publisher: Amazon Web Services, title: "AWS WAF geographic match rule statement", url: "https://docs.aws.amazon.com/waf/latest/developerguide/waf-rule-statement-type-geo-match.html", topic: geo, jurisdiction: global, official: true, reviewCadenceDays: 90 }
+  - { id: SRC-AWS-CLOUDFRONT-GEO, publisher: Amazon Web Services, title: "CloudFront geographic restrictions", url: "https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/georestrictions.html", topic: geo, jurisdiction: global, official: true, reviewCadenceDays: 90 }
+  - { id: SRC-CLOUDFLARE-RADAR, publisher: Cloudflare, title: "Cloudflare Radar", url: "https://radar.cloudflare.com/", topic: threat, jurisdiction: global, official: false, reviewCadenceDays: 30, notes: "Aggregate context only; not a per-country risk score for your service." }
+  - { id: SRC-CISA-ADVISORIES, publisher: US CISA, title: "Cybersecurity advisories", url: "https://www.cisa.gov/news-events/cybersecurity-advisories", topic: threat, jurisdiction: US, official: true, reviewCadenceDays: 7, notes: "Advisories describe threats and vulnerabilities, not country risk scores." }
+  - { id: SRC-SPAMHAUS-DROP, publisher: Spamhaus, title: "Don't Route Or Peer (DROP) lists", url: "https://www.spamhaus.org/blocklists/do-not-route-or-peer/", topic: threat, jurisdiction: global, official: false, reviewCadenceDays: 1, license: "Check usage terms.", notes: "Network ranges, not countries." }
+  - { id: SRC-ABUSE-CH, publisher: abuse.ch, title: "abuse.ch threat intelligence", url: "https://abuse.ch/", topic: threat, jurisdiction: global, official: false, reviewCadenceDays: 1, license: "Check usage terms.", notes: "Indicators, not countries." }

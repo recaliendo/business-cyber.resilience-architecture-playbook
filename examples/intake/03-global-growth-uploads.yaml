@@ -1,0 +1,88 @@
+# SYNTHETIC EXAMPLE 3: global growth stage, heavy user uploads, EU/UK/BR users, regional data.
+schemaVersion: 1
+assessedAt: "2026-11-14T12:00:00Z"
+business:
+  name: PhotoTrail (synthetic)
+  model: hybrid
+  enterpriseDealsInPipeline: "no"
+  securityQuestionnairesReceived: "yes"
+  stage: growth
+  team: { size: 12, engineeringHoursPerWeek: 300 }
+  establishment: { countries: [US] }
+  targetMarkets: [US, GB, DE, FR, ES, BR, JP]
+  dataLocations: [us-east-1, eu-west-1]
+  dataClasses: [personal, contact, account_credentials, user_content, precise_location, behavioral_analytics]
+  processingPurposes: [photo storage and sharing, location tagging, recommendations]
+  surfaces: { ios: true, web: true, android: true }
+  sector: { hipaaRole: none, ferpaRole: none, glbaFinancialInstitution: "no" }
+  children: { directedToChildren: "no", likelyAccessedByChildren: "yes", actualKnowledgeOfUnder13: "no" }
+  privacy:
+    role: controller
+    offersToEuIndividuals: "yes"
+    monitorsEuBehaviour: "yes"
+    offersToUkIndividuals: "yes"
+    monitorsUkBehaviour: "yes"
+    processesInBrazilOrOffersToBrazil: "yes"
+    caResidentsPersonalDataPerYear: 260000
+    annualGrossRevenueUsd: 9000000
+    sellsOrSharesPersonalData: "no"
+    largeScaleSensitiveProcessing: "no"
+    occasionalProcessingOnly: "no"
+  ios: { supportsAccountCreation: "yes", tracksPerAttDefinition: "unknown", thirdPartySdks: [Firebase Analytics, AppsFlyer], sellsDigitalGoodsOrSubscriptions: "yes", usesRequiredReasonApis: "yes" }
+  payments: { method: stripe_hosted_checkout, rawCardDataTouchesOurServers: "no" }
+  ai: { usesAi: "yes", role: deployer, usersInteractWithAiSystem: "no", generatesSyntheticContent: "yes", possibleHighRiskUseCase: "no", outputUsedInEu: "yes" }
+  accessibility: { offersEaaCoveredServicesInEu: "yes", microenterprise: "no", usPublicFacingService: "yes" }
+workload:
+  mau: 900000
+  dau: 180000
+  peakConcurrentActiveUsers: 9000
+  requestsPerActiveUserPerMinute: 5
+  peakToAverageRatio: 3
+  burstMultiplier: 2.5
+  requestMix:
+    - { name: feed, share: 0.65, avgDurationMs: 90, dbQueriesPerRequest: 3, avgDbQueryMs: 3, cacheHitRatio: 0.6 }
+    - { name: upload_init, share: 0.1, avgDurationMs: 250, dbQueriesPerRequest: 2, avgDbQueryMs: 5 }
+    - { name: search, share: 0.2, avgDurationMs: 400, dbQueriesPerRequest: 4, avgDbQueryMs: 25 }
+    - { name: share_link, share: 0.05, avgDurationMs: 150, dbQueriesPerRequest: 2, avgDbQueryMs: 4 }
+  growth: { monthlyRate: 0.08 }
+  storage:
+    databaseGb: 420
+    databaseGrowthGbPerMonth: 35
+    indexOverheadRatio: 0.4
+    objectStorageGb: 180000
+    uploadsPerDay: 400000
+    avgUploadMb: 3.5
+    objectVersioning: true
+    versionOverheadRatio: 0.1
+    replicaCount: 2
+    backupRetentionDays: 30
+    logsGbPerDay: 60
+    logRetentionDays: 90
+    egressGbPerMonth: 250000
+  limits: { computeConcurrency: 2000, dbPoolSize: 300, dbMaxConnections: 500, dbQuotaGb: 1000, objectStorageQuotaGb: 600000, functionTimeoutMs: 30000 }
+  unitPrices:
+    perGbMonthObject: { usd: 0.021, sourceDate: "2026-09-15", source: "illustrative" }
+    perGbMonthDatabase: { usd: 0.115, sourceDate: "2026-09-15", source: "illustrative" }
+    perGbEgress: { usd: 0.05, sourceDate: "2026-09-15", source: "illustrative" }
+    perMillionRequests: { usd: 0.4, sourceDate: "2026-09-15", source: "illustrative" }
+    perGbSecondCompute: { usd: 0.0000166, sourceDate: "2026-09-15", source: "illustrative" }
+  measurements:
+    - { metric: peak_rps, value: 780, unit: req/s, measuredAt: "2026-11-10T19:00:00Z", provenance: observed, evidenceRef: dashboards/edge-traffic-2026-11-10 }
+  loadTests:
+    - { scenario: spike, environment: staging, sustainedRps: 2400, p95Ms: 410, errorRate: 0.006, testedAt: "2026-10-28T02:00:00Z", evidenceRef: evidence/load/spike-2026-10-28.json }
+infrastructure:
+  environments: [local, preview, staging, production]
+  productionIsolatedFromNonProduction: "yes"
+  tlsEverywhere: "yes"
+  dnsRegistrarLocked: "yes"
+  components:
+    - { id: cdn, kind: cdn, vendor: Cloudflare, dependsOn: [api, objects] }
+    - { id: api, kind: compute, vendor: AWS ECS, regions: [us-east-1, eu-west-1], dependsOn: [db, objects, queue], controls: { timeoutsConfigured: "yes", retriesWithBackoffAndJitter: "yes", rateLimited: "yes", healthCheck: "yes", idempotentWrites: "yes", originOnlyReachableViaEdge: "no", circuitBreakerOrLoadShedding: "unknown" } }
+    - { id: db, kind: database, vendor: AWS RDS Postgres, regions: [us-east-1], holdsCustomerData: true, controls: { backups: "yes", restoreTested: "yes", tenantIsolationEnforced: "yes", encryptionAtRest: "yes" } }
+    - { id: objects, kind: object_storage, vendor: AWS S3, regions: [us-east-1, eu-west-1], holdsCustomerData: true, controls: { backups: "yes", restoreTested: "no", tenantIsolationEnforced: "yes", encryptionAtRest: "yes" } }
+    - { id: queue, kind: queue, vendor: AWS SQS, dependsOn: [workers] }
+  criticalJourneys:
+    - { name: upload, components: [cdn, api], sloP95Ms: 1200 }
+evidence:
+  - { id: ev-q4-mfa, kind: config_export, description: SSO with enforced hardware keys., provenance: observed, collectedAt: "2026-10-15T10:00:00Z", reference: evidence/q4/sso.json, assertions: [{ controlId: IAM-01, state: met }, { controlId: IAM-02, state: met }, { controlId: IAM-03, state: met }, { controlId: IAM-04, state: met }] }
+  - { id: ev-q4-restore, kind: restore_test, description: DB restore drill RTO 95 min RPO 5 min; objects not tested., provenance: observed, collectedAt: "2026-09-20T10:00:00Z", reference: evidence/q3/restore-drill.md, assertions: [{ controlId: RES-01, state: met }, { controlId: RES-02, state: partial, justification: "Database restore measured; object restore not exercised." }] }

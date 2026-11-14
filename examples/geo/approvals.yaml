@@ -1,0 +1,10 @@
+# SYNTHETIC approval bound to the example policy's content hash. Regenerate with npm run example:approve.
+approvals:
+  - id: APR-example-geo-policy-v3
+    policyId: example-geo-policy
+    policyVersion: 3
+    policyHash: 5c9fa65bc42441036a046ef87bcf2b75aef486ef23c7b6263b58d78ba7c6e180
+    approver: example-approver (synthetic)
+    approvedAt: 2026-11-14T09:00:00Z
+    changeRef: https://github.com/example-org/example-repo/pull/1
+    method: github_pr_review

@@ -1,0 +1,104 @@
+# SYNTHETIC EXAMPLE 2: B2B SaaS with enterprise procurement questionnaires arriving.
+schemaVersion: 1
+assessedAt: "2026-11-14T12:00:00Z"
+business:
+  name: LedgerLoop (synthetic)
+  model: b2b
+  enterpriseDealsInPipeline: "yes"
+  securityQuestionnairesReceived: "yes"
+  revenueBlockedBySecurityReview: "no"
+  stage: early_production
+  team: { size: 4, engineeringHoursPerWeek: 120 }
+  budgetMonthlyUsd: 4000
+  riskTolerance: low
+  establishment: { countries: [US] }
+  targetMarkets: [US, GB, DE, NL]
+  dataLocations: [us-east-1, eu-central-1]
+  dataClasses: [personal, contact, account_credentials, user_content, employee]
+  processingPurposes: [B2B workflow automation for customer employees]
+  surfaces: { web: true, publicApi: true }
+  sector: { hipaaRole: none, ferpaRole: none, glbaFinancialInstitution: "no" }
+  children: { directedToChildren: "no", likelyAccessedByChildren: "no", actualKnowledgeOfUnder13: "no" }
+  privacy:
+    role: processor
+    offersToEuIndividuals: "yes"
+    monitorsEuBehaviour: "no"
+    offersToUkIndividuals: "yes"
+    monitorsUkBehaviour: "no"
+    processesInBrazilOrOffersToBrazil: "no"
+    caResidentsPersonalDataPerYear: 30000
+    annualGrossRevenueUsd: 1800000
+    revenueShareFromSellingOrSharingData: 0
+    sellsOrSharesPersonalData: "no"
+    largeScaleSensitiveProcessing: "no"
+    occasionalProcessingOnly: "no"
+  payments: { method: stripe_hosted_checkout, rawCardDataTouchesOurServers: "no" }
+  ai: { usesAi: "yes", role: deployer, usersInteractWithAiSystem: "yes", generatesSyntheticContent: "no", possibleHighRiskUseCase: "no", outputUsedInEu: "yes" }
+  accessibility: { offersEaaCoveredServicesInEu: "no", usPublicFacingService: "no" }
+workload:
+  dau: 3000
+  peakConcurrentActiveUsers: 450
+  requestsPerActiveUserPerMinute: 6
+  peakToAverageRatio: 4
+  requestMix:
+    - { name: dashboard, share: 0.6, avgDurationMs: 220, dbQueriesPerRequest: 4, avgDbQueryMs: 8, cacheHitRatio: 0.3 }
+    - { name: api_write, share: 0.3, avgDurationMs: 300, dbQueriesPerRequest: 5, avgDbQueryMs: 10 }
+    - { name: report_export, share: 0.1, avgDurationMs: 4000, dbQueriesPerRequest: 30, avgDbQueryMs: 40 }
+  storage: { databaseGb: 40, databaseGrowthGbPerMonth: 4, backupRetentionDays: 14, logsGbPerDay: 2, logRetentionDays: 30, egressGbPerMonth: 150 }
+  limits: { computeConcurrency: 100, dbPoolSize: 40, dbMaxConnections: 90, dbQuotaGb: 100, functionTimeoutMs: 10000 }
+  unitPrices:
+    perMillionRequests: { usd: 0.6, sourceDate: "2026-10-01", source: "illustrative" }
+    perGbSecondCompute: { usd: 0.0000167, sourceDate: "2026-10-01", source: "illustrative" }
+    perGbMonthDatabase: { usd: 0.125, sourceDate: "2026-10-01", source: "illustrative" }
+    perGbEgress: { usd: 0.09, sourceDate: "2026-10-01", source: "illustrative" }
+    perGbLogsIngested: { usd: 0.5, sourceDate: "2026-10-01", source: "illustrative" }
+    fixedMonthly: { usd: 200, sourceDate: "2026-10-01", source: "illustrative" }
+  slo: { availability: 0.999, p95LatencyMs: 800 }
+  rtoMinutes: 240
+  rpoMinutes: 60
+  loadTests:
+    - { scenario: ramp, environment: staging, sustainedRps: 120, p95Ms: 650, errorRate: 0.004, testedAt: "2026-10-20T15:00:00Z", evidenceRef: evidence/load/2026-10-20-ramp.json }
+infrastructure:
+  environments: [local, preview, staging, production]
+  productionIsolatedFromNonProduction: "yes"
+  tlsEverywhere: "yes"
+  dnsRegistrarLocked: "unknown"
+  components:
+    - id: edge
+      kind: edge
+      vendor: Netlify
+      controls: { healthCheck: "yes", rateLimited: "no" }
+      dependsOn: [api]
+    - id: api
+      kind: function
+      vendor: Netlify Functions
+      dependsOn: [db, stripe]
+      controls: { timeoutsConfigured: "yes", retriesWithBackoffAndJitter: "no", idempotentWrites: "yes", rateLimited: "no", healthCheck: "yes", originOnlyReachableViaEdge: "unknown" }
+    - id: db
+      kind: database
+      vendor: Supabase
+      regions: [us-east-1]
+      holdsCustomerData: true
+      controls: { backups: "yes", restoreTested: "no", tenantIsolationEnforced: "yes", encryptionAtRest: "yes" }
+    - id: stripe
+      kind: payments
+      vendor: Stripe
+      controls: { idempotentWrites: "yes" }
+  criticalJourneys:
+    - { name: checkout, components: [edge, api], sloP95Ms: 1500 }
+data:
+  datasets:
+    - { name: customer_workspaces, classes: [personal, user_content, employee], locations: [us-east-1], retentionDays: 2555, deletionProcess: "yes", backedUp: "yes" }
+  vendors:
+    - { name: Supabase, purpose: database and auth, processesCustomerData: true, critical: true, dpaSigned: "yes", regions: [us-east-1], assurance: [soc2_type2], assuranceReportDate: "2026-06-30", subprocessorsReviewed: "yes" }
+    - { name: Netlify, purpose: hosting, processesCustomerData: true, critical: true, dpaSigned: "yes", assurance: [soc2_type2] }
+    - { name: Stripe, purpose: payments, processesCustomerData: true, critical: true, dpaSigned: "yes", assurance: [soc2_type2, pci_dss_aoc] }
+    - { name: Anthropic, purpose: AI assistant feature, processesCustomerData: true, critical: false, dpaSigned: "unknown" }
+evidence:
+  - { id: ev-mfa, kind: config_export, description: "Org-wide MFA enforcement exports for GitHub, Google Workspace, Netlify, Supabase, Stripe.", provenance: observed, collectedAt: "2026-11-05T10:00:00Z", reference: evidence/2026-q4/mfa/, assertions: [{ controlId: IAM-01, state: met }, { controlId: IAM-02, state: met }] }
+  - { id: ev-branch, kind: config_export, description: Branch protection with required checks and reviews., provenance: observed, collectedAt: "2026-11-05T10:00:00Z", reference: evidence/2026-q4/branch.json, assertions: [{ controlId: CHG-01, state: met }, { controlId: CHG-02, state: met }] }
+  - { id: ev-dependabot, kind: config_export, description: Dependabot alerts and updates enabled., provenance: observed, collectedAt: "2026-11-05T10:00:00Z", reference: evidence/2026-q4/dependabot.png, assertions: [{ controlId: VUL-01, state: met }, { controlId: VUL-02, state: met }] }
+  - { id: ev-env, kind: statement, description: Separate Supabase projects and Stripe modes per environment., provenance: self_reported, collectedAt: "2026-09-01T10:00:00Z", reference: docs/environments.md, assertions: [{ controlId: CHG-03, state: met }] }
+  - { id: ev-backups, kind: config_export, description: PITR enabled on production database., provenance: observed, collectedAt: "2026-10-01T10:00:00Z", reference: evidence/2026-q4/pitr.png, assertions: [{ controlId: RES-01, state: partial, justification: "Database covered; uploaded files have no separate backup." }] }
+  - { id: ev-logs-old, kind: config_export, description: Audit log settings., provenance: observed, collectedAt: "2025-12-01T10:00:00Z", reference: evidence/2025-q4/audit-logs.png, assertions: [{ controlId: LOG-01, state: met }] }
+  - { id: ev-vuln4, kind: statement, description: No container images are built; serverless functions only., provenance: self_reported, collectedAt: "2026-11-05T10:00:00Z", reference: README, assertions: [{ controlId: VUL-04, state: not_applicable, justification: "No container images are built or deployed." }] }

@@ -1,0 +1,23 @@
+# Data and vendor inventory. Paste into the `data:` section of your intake, or keep alongside it.
+# One entry per table/bucket group that holds customer data, and one per vendor that processes it
+# or that you depend on to run. A vendor's certification does not make you compliant: record what
+# remains your responsibility.
+datasets:
+  - name: user_accounts
+    classes: [personal, contact, account_credentials]
+    locations: [us-east-1]
+    retentionDays: 1095          # how long you keep it after the account closes
+    deletionProcess: unknown     # yes when deletion is implemented end to end (including backups and processors)
+    backedUp: unknown
+vendors:
+  - name: Example database provider
+    purpose: Database and authentication
+    processesCustomerData: true
+    critical: true
+    dpaSigned: unknown           # file the signed or accepted DPA and link it in the evidence register
+    regions: [us-east-1]
+    assurance: []                # soc2_type1 | soc2_type2 | iso27001 | pci_dss_aoc | hipaa_baa_available | none_known
+    assuranceReportDate: null    # period end of the report you reviewed; note exceptions and any bridge letter
+    subprocessorsReviewed: unknown
+# Also record, per vendor, outside this file: report scope, exceptions found, customer
+# responsibilities listed in the report (complementary user entity controls), and exit plan.

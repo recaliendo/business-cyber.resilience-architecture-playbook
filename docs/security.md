@@ -36,12 +36,18 @@
 4. **Fix root cause** — not just the symptom (rotate the key *and* fix the `.gitignore`/CI gap that let it happen).
 5. **Write it down** — even a five-line incident note with date, cause, fix, and rotation record. Future-you needs this more than you think.
 
-## Compliance readiness (early production, not Day 0)
+## Compliance: obligations vs. attestations
 
-Full compliance frameworks (SOC 2, HIPAA, PCI beyond what Stripe Checkout already offloads) are growth triggers, not MVP requirements — don't build to a framework you don't yet have a customer requiring. That said, a lightweight version of these documents costs little and pays off the first time an enterprise prospect asks for them:
+Keep three things separate. They have different triggers and different deadlines.
 
-- Access control policy (who can access production data, how is that granted/revoked)
-- Data retention policy (what you keep, for how long, why)
-- Incident response plan (the five steps above, written down before you need them)
+| Kind | Examples | When it applies |
+|---|---|---|
+| **Legal and regulatory obligations** | GDPR/UK GDPR, US state privacy laws, COPPA, HIPAA, FERPA, GLBA, accessibility laws, the EU AI Act, sanctions | **As soon as the legal trigger is met, possibly from launch.** They do not wait for customer demand. |
+| **Platform and contractual requirements** | App Store privacy labels, privacy manifests and account deletion; PCI DSS through your payment processor | When you ship on the platform or accept cards. PCI DSS applies whenever you take card payments; hosted checkout reduces the scope but does not remove it. |
+| **Voluntary attestations** | SOC 2, ISO/IEC 27001 | When buyers, contracts or blocked revenue call for them. Not generally a legal launch requirement. |
 
-One prior project (`standardcraft`) had drafted exactly this skeleton unusually early — worth doing again as a template, see [templates/security-checklist.md](../templates/security-checklist.md).
+Sector laws depend on legal **roles**, not data labels. Handling health data does not by itself make HIPAA apply: it depends on being a covered entity or business associate. Likewise, FERPA depends on receiving records from a covered institution, and GLBA on being a financial institution. Where a sector law does apply, it can override the ordinary startup roadmap.
+
+Run `npm run bcr -- compliance --intake <file>` for a screening of what may apply, with reasoning and questions for counsel. Record the decisions in the [compliance applicability register](../templates/consultant/compliance-applicability-register.md). The screening is not legal advice.
+
+Lightweight written policies cost little and help both with obligations and with the first enterprise questionnaire. Adapt them to what you actually do: [templates/consultant/policies](../templates/consultant/policies/README.md). For the SOC 2 / ISO path once buyers ask, see the [readiness roadmap](../templates/consultant/soc2-iso-readiness-roadmap.md).

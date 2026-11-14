@@ -1,0 +1,100 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "version": {
+      "type": "string"
+    },
+    "obligations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^OB-[A-Z0-9-]+$"
+          },
+          "title": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "legal",
+              "platform",
+              "contractual",
+              "voluntary"
+            ]
+          },
+          "jurisdiction": {
+            "type": "string"
+          },
+          "ruleCategory": {
+            "type": "string"
+          },
+          "summary": {
+            "type": "string"
+          },
+          "applicabilityConditions": {
+            "type": "string"
+          },
+          "exceptions": {
+            "default": "",
+            "type": "string"
+          },
+          "effectiveDates": {
+            "default": "",
+            "type": "string"
+          },
+          "sourceIds": {
+            "minItems": 1,
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "requiredEvidence": {
+            "default": [],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "remediation": {
+            "type": "string"
+          },
+          "counselReview": {
+            "type": "boolean"
+          },
+          "launchBlockerIfApplicable": {
+            "default": false,
+            "type": "boolean"
+          },
+          "relatedControls": {
+            "default": [],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "category",
+          "jurisdiction",
+          "ruleCategory",
+          "summary",
+          "applicabilityConditions",
+          "sourceIds",
+          "remediation",
+          "counselReview"
+        ]
+      }
+    }
+  },
+  "required": [
+    "version",
+    "obligations"
+  ]
+}

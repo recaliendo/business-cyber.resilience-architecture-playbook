@@ -1,0 +1,37 @@
+{
+  "name": "business-cyber-resilience-consultant",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Local-first, evidence-based cyber resilience, capacity, compliance-positioning and repository-review consultant, alongside the Business Setup Architecture Playbook.",
+  "license": "UNLICENSED",
+  "type": "module",
+  "engines": {
+    "node": ">=22.12"
+  },
+  "bin": {
+    "bcr": "dist/src/cli/index.js"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "eslint .",
+    "test": "npm run build && node --test --test-reporter=spec \"dist/tests/**/*.test.js\"",
+    "schemas": "npm run build && node dist/scripts/generate-schemas.js",
+    "validate": "npm run build && node dist/scripts/validate-repo.js",
+    "check": "npm run typecheck && npm run lint && npm test && node dist/scripts/validate-repo.js",
+    "demo": "npm run build && node dist/scripts/demo.js",
+    "bcr": "node dist/src/cli/index.js",
+    "example:approve": "npm run build && node dist/scripts/example-approve.js"
+  },
+  "dependencies": {
+    "yaml": "2.9.1",
+    "zod": "4.6.7"
+  },
+  "devDependencies": {
+    "@eslint/js": "10.0.1",
+    "@types/node": "22.19.1",
+    "eslint": "10.15.0",
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.72.2"
+  }
+}

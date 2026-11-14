@@ -1,8 +1,12 @@
-// netlify/functions/checkout.ts — reference implementation. See vendors/stripe.md for rationale.
+// netlify/functions/checkout.ts — ILLUSTRATIVE reference, not production-ready as-is.
+// See vendors/stripe.md for rationale. Pin STRIPE_API_VERSION to the version you test against.
 import Stripe from 'stripe'
 import { supabaseServer } from '../../lib/supabase-server'
+import { supabaseAdmin } from '../../lib/supabase-admin'
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
+const STRIPE_API_VERSION = process.env.STRIPE_API_VERSION
+if (!STRIPE_API_VERSION) throw new Error('Set STRIPE_API_VERSION to the API version you have tested')
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: STRIPE_API_VERSION as Stripe.LatestApiVersion })
 
 // Server-side source of truth for what a client is allowed to purchase.
 // Never trust a price ID sent from the client directly.
@@ -43,15 +47,28 @@ export default async (req: Request) => {
     return new Response('Unauthorized', { status: 401 })
   }
 
-  // Find-or-create the Stripe customer by email first — prevents duplicate
-  // customer records on retry/double-click.
-  const existing = await stripe.customers.list({ email: user.email!, limit: 1 })
-  const customer =
-    existing.data[0] ??
-    (await stripe.customers.create({
-      email: user.email!,
-      metadata: { supabase_user_id: user.id },
-    }))
+  // Find-or-create the Stripe customer by OUR user ID, never by email. Looking customers up by email
+  // can attach one user to another user's billing when addresses are unverified or change.
+  // Store the mapping server-side (a `billing_customers` table, readable only by the service role).
+  const { data: mapping } = await supabaseAdmin
+    .from('billing_customers')
+    .select('stripe_customer_id')
+    .eq('user_id', user.id)
+    .maybeSingle()
+  let customerId = mapping?.stripe_customer_id as string | undefined
+  if (!customerId) {
+    // The idempotency key makes a retry or double-click return the same customer, not a duplicate.
+    const created = await stripe.customers.create(
+      { email: user.email ?? undefined, metadata: { supabase_user_id: user.id } },
+      { idempotencyKey: `customer-create-${user.id}` },
+    )
+    const { error } = await supabaseAdmin
+      .from('billing_customers')
+      .upsert({ user_id: user.id, stripe_customer_id: created.id }, { onConflict: 'user_id', ignoreDuplicates: true })
+    if (error) throw error
+    customerId = created.id
+  }
+  const customer = { id: customerId }
 
   const session = await stripe.checkout.sessions.create({
     mode: 'subscription',

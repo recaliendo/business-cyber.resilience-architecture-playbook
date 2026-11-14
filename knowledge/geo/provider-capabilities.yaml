@@ -1,0 +1,37 @@
+# What each enforcement layer can express. Based on vendor documentation recorded from prior
+# knowledge. UNVERIFIED: confirm against the cited sources and your plan before relying on it.
+# Plan-dependent features are marked; the compiler reports them as "verify for your plan".
+version: "1.0.0"
+providers:
+  cloudflare-waf:
+    sourceIds: [SRC-CLOUDFLARE-WAF]
+    country: true
+    subdivision: plan_dependent      # ip.src.subdivision_1_iso_code: availability depends on plan
+    challenge: true                  # managed_challenge, web browsers only
+    log_only: plan_dependent         # the "log" action is not available on every plan
+    nativeClientChallenge: false
+    notes: Challenges need a browser; native iOS and API clients cannot solve them.
+  aws-cloudfront:
+    sourceIds: [SRC-AWS-CLOUDFRONT-GEO]
+    country: true
+    subdivision: false
+    challenge: false
+    log_only: false
+    nativeClientChallenge: false
+    notes: Distribution-level allow list or deny list by country only.
+  aws-waf:
+    sourceIds: [SRC-AWS-WAF-GEO]
+    country: true
+    subdivision: plan_dependent      # region-level geo match exists for some regions; check coverage
+    challenge: true
+    log_only: true                   # count action
+    nativeClientChallenge: false
+    notes: Check which regions support region-level matching.
+  app-store:
+    sourceIds: [SRC-APPLE-REVIEW]
+    country: true                    # territory availability in App Store Connect (coarse distribution control)
+    subdivision: false
+    challenge: false
+    log_only: false
+    nativeClientChallenge: false
+    notes: Controls where the app is offered, not who can use it at runtime. It cannot express regions within a country.
